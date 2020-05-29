@@ -51,10 +51,20 @@ for i in range(9):
 		j += 1
 	i += 1
 
-
+def printgrid(megalist):
+    for i in range (9):
+        if i % 3 == 0 and i != 0:
+            print("- - - - - - - - - - - -")
+        for j in range (9):
+            if j % 3 == 0 and j != 0:
+                print(" | ", end="")
+        
+            if j == 8:
+                print(megalist[i][j]) 
+            else:
+                print(str(megalist[i][j]) + " ", end="")
 #display megalist as a 9 * 9 "grid"
-for s in range(9):
-	print(megalist[s])
+printgrid(megalist)
 
 #finding empty slot, iterate thru the grid
 #maybe make it into a function
@@ -133,6 +143,4 @@ def validate(megalist, potent_number, x, y): #, index_num):
 replace_empty(megalist)
 print("-------------------------------")
 print("Solved board\n")
-for s in range(9):
-	print(megalist[s])
-
+printgrid(megalist)
