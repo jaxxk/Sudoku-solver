@@ -4,7 +4,7 @@ from PIL import Image
 
 psmSetting = 10 # 6,7,10
 
-img = Image.open('test2.png')
+img = Image.open('testImages/test.png')
 
 dimOfGrid = (img.width + img.height) // 2 # assume this as the size of 9x9 grid for now
 padding = dimOfGrid // 100 + 3 # number of pixels to ignore from edges
