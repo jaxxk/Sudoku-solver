@@ -10,7 +10,6 @@ import webbrowser
 # Configurations
 gridXOffset = 15
 gridYOffset = 50
-
 midlist, megalist, cells = ([] for i in range(3))
 
 
@@ -59,6 +58,11 @@ def selectImage(x, y, value):
     return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
 
 
+def motion(event):
+    x,y = event.x,event.y
+    if (x >= 0 and x <= 46):
+         if (y >6 and y <= 8):
+            openGithub()
 class mainScreen:
     def __init__(self, master):
 
@@ -75,8 +79,13 @@ class mainScreen:
 
         buttonStyle = Style()
         buttonStyle.configure("github.TButton", font = ("SF Pro Display", 10), foreground = "#3399FF", background = "#F2F2F2")
-        githubLabel = Button(app, text = "Github↗", command = openGithub, style = "github.TButton")
-        githubLabel.place(x = 153, y = 24)
+        githubLabel = Label(app, text = "Github↗",foreground = "blue")
+        githubLabel.place(x = 150, y = 25)
+        
+
+        generateLabel = Label(app, text = "Generate New Board",font = ("SF Pro Display", 13))
+        generateLabel.place(x = 400, y = 25)
+
 
         for x in range(9):
             cells.append([])
@@ -93,6 +102,8 @@ app = Tk()
 app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
+app.bind("<Button-1>",motion)
+
 
 line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
 line.pack()
