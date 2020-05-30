@@ -10,6 +10,7 @@ import webbrowser
 # Configurations
 gridXOffset = 15
 gridYOffset = 50
+buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
@@ -90,12 +91,14 @@ class mainScreen:
         AddFontResourceEx = windll.gdi32.AddFontResourceExA
         AddFontResourceEx(byref(pathbuf), 0x10, 0)
 
+        # Title and Github Button
         titleLabel = Label(app, text = "SudokuSolver", font = ("SF Pro Display", 17))
         titleLabel.place(x = 15, y = 15)
 
         githubLabel = Label(app, text = "Github↗", foreground = "blue", font = ("SF Pro Display", 10))
         githubLabel.place(x = 153, y = 25)
 
+        # Generate new board
         generateLabel = Label(app, text = "Generate new board", font = ("SF Pro Display", 11))
         generateLabel.place(x = 381, y = buttonYOffset - 27)
        
@@ -116,6 +119,30 @@ class mainScreen:
         captureBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 2)
         captureBT = Button(captureBD, text = " From Screen.. ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
         captureBT.place(x = 0, y = 0)
+
+        # Manage current board
+        generateLabel = Label(app, text = "Manage current board", font = ("SF Pro Display", 11))
+        generateLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap)
+       
+        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line1.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 20)
+
+        generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 137, height = buttonHeight)
+        generateBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
+        generateBT = Button(generateBD, text = " Show/hide soultion ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
+        generateBT.place(x = 0, y = 0)
+        
+        manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
+        manualBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
+        manualBT = Button(manualBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        manualBT.place(x = 0, y = 0)
+
+        # Miscellaneous
+        generateLabel = Label(app, text = "Miscellaneous", font = ("SF Pro Display", 11))
+        generateLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 27)
+       
+        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line1.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
 
         for x in range(9):
             cells.append([])
