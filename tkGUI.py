@@ -1,20 +1,97 @@
-from tkinter import *
+from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 import tkinter as tk
-# from tkinter import ttk
+from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
-from tkinter import font  as tkfont # python 3
+from tkinter import font as tkfont  # python 3
+from lxml import html
+import requests
+import webbrowser
 
-class MyFirstGUI:
+# Configurations
+gridXOffset = 15
+gridYOffset = 50
+
+midlist, megalist, cells = ([] for i in range(3))
+
+
+def fetchRandomTable(midlist, megalist):
+    page = requests.get("http://sudoku9x9.com")
+    tree = html.fromstring(page.content)
+    i = 0
+    # taking in list values and adding them as elements in midlist
+    for x in range(9):  # row
+        for y in range(9):  # col
+            list = tree.xpath("//*[@id='cell{}']//text()".format(i))
+            if list:
+                midlist.extend(list)
+            else:
+                midlist.append(0)
+            i += 1
+
+    # adding midlist elems as rows of 9 into megalist
+    # innerloopcount will continue to increment throughout the 81 elements in the midlist
+    innerloopcount = 0
+    for i in range(9):
+        megalist.append([])
+        for j in range(9):
+            megalist[i].append(int(midlist[innerloopcount]))
+            innerloopcount += 1
+            j += 1
+        i += 1
+
+    # display megalist as a 9 * 9 "grid"
+    # for s in range(9):
+    #     print(megalist[s])
+
+
+def openGithub():
+    webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+
+
+def selectImage(x, y, value):
+    imagePath = "assets/images/"
+    colorVariant = ""
+    if 2 < y and y < 6:
+        colorVariant = "o"
+        if 2 < x and x < 6:
+            colorVariant = "e"
+    else:
+        colorVariant = "e"
+        if 2 < x and x < 6:
+            colorVariant = "o"
+
+    return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
+
+
+class mainScreen:
     def __init__(self, master):
-        self.master = master
-        master.title("A simple GUI")
-        for x in range(3):
-	        image = Image.open("sudoku.png")
-	        photo = ImageTk.PhotoImage(image)
-	        label = Label(image=photo)
-	        label.image = photo
-	        label.grid(row=0,column=x)
+
+        fetchRandomTable(midlist, megalist)
+
+        pathbuf = create_unicode_buffer(
+            "assets\\fonts\\SF-Pro-Display-Light.otf")
+        AddFontResourceEx = windll.gdi32.AddFontResourceExA
+        AddFontResourceEx(byref(pathbuf), 0x10, 0)
+
+        titleLabel = Label(app, text = "SudokuSolver", font = ("SF Pro Display", 17))
+        titleLabel.place(x = 15, y = 15)
+
+
+        buttonStyle = Style()
+        buttonStyle.configure("github.TButton", font = ("SF Pro Display", 10), foreground = "#3399FF", background = "#F2F2F2")
+        githubLabel = Button(app, text = "Github↗", command = openGithub, style = "github.TButton")
+        githubLabel.place(x = 153, y = 24)
+
+        for x in range(9):
+            cells.append([])
+            for y in range(9):
+                image = selectImage(x, y, megalist[x][y])
+                photo = ImageTk.PhotoImage(image)
+                label = Label(image = photo)
+                label.image = photo
+                label.place(x = x * 40 + gridXOffset, y = y * 40 + gridYOffset)
+                cells[x].append(label)
 
         # image = Image.open("sudoku.png")
         # photo2 = ImageTk.PhotoImage(image)
@@ -25,21 +102,23 @@ class MyFirstGUI:
         # self.close_button = Button(master, text="Close", command=master.quit)
         # self.close_button.grid()
 
-    def greet(self):
-        print("Greetings!")
 
-root = Tk()
-my_gui = MyFirstGUI(root)
-root.mainloop()
+app = Tk()
+app.title("SudokuSolver")
+app.geometry("600x450")
+app["bg"] = "#F2F2F2"
+
+gui = mainScreen(app)
+app.mainloop()
 
 # class SampleApp(tk.Tk):
 
 #     def __init__(self, *args, **kwargs):
 #         tk.Tk.__init__(self, *args, **kwargs)
 
-#         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+#         self.title_font = tkfont.Font(family="Helvetica", size=18, weight="bold", slant="italic")
 
-#         # the container is where we'll stack a bunch of frames
+#         # the container is where we"ll stack a bunch of frames
 #         # on top of each other, then the one we want visible
 #         # will be raised above the others
 #         container = tk.Frame(self)
@@ -61,7 +140,7 @@ root.mainloop()
 #         self.show_frame("StartPage")
 
 #     def show_frame(self, page_name):
-#         '''Show a frame for the given page name'''
+#         "Show a frame for the given page name"
 #         frame = self.frames[page_name]
 #         frame.tkraise()
 
@@ -69,20 +148,20 @@ root.mainloop()
 # class StartPage(tk.Frame):
 
 #     def __init__(self, parent, controller):
-#     	tk.Frame.__init__(self, parent)
-#     	self.controller = controller
-#     	label = tk.Label(self, text="This is the start page", font=controller.title_font)
-#     	label.pack(side="top", fill="x", pady=10)
-#     	button1 = tk.Button(self, text="Go to Page One",
+#       tk.Frame.__init__(self, parent)
+#       self.controller = controller
+#       label = tk.Label(self, text="This is the start page", font=controller.title_font)
+#       label.pack(side="top", fill="x", pady=10)
+#       button1 = tk.Button(self, text="Go to Page One",
 #                             command= self.nextPage())
-#     	image = Image.open("test.png")
-#     	photo = ImageTk.PhotoImage(image)
-#     	self.label = Label(image=photo)
-#     	self.label.image = photo
-#     	self.label.pack()
-#     	button1.pack()
+#       image = Image.open("test.png")
+#       photo = ImageTk.PhotoImage(image)
+#       self.label = Label(image=photo)
+#       self.label.image = photo
+#       self.label.pack()
+#       button1.pack()
 #     def nextPage(self):
-#     	return self.controller.show_frame("PageOne")
+#       return self.controller.show_frame("PageOne")
 
 
 # class PageOne(tk.Frame):
@@ -96,8 +175,6 @@ root.mainloop()
 #         button = tk.Button(self, text="Go to the start page",
 #                            command=lambda: controller.show_frame("StartPage"))
 #         button.pack()
-
-
 
 
 # if __name__ == "__main__":

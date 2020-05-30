@@ -1,11 +1,11 @@
 import pytesseract as tess
-tess.pytesseract.tesseract_cmd = r'Tesseract-OCR\tesseract.exe'
+tess.pytesseract.tesseract_cmd = r'assets\Tesseract-OCR\tesseract.exe'
 from PIL import Image
 
+img = Image.open('assets/Images/testImages/test.png')
+
+# Settings
 psmSetting = 10 # 6,7,10
-
-img = Image.open('testImages/test.png')
-
 dimOfGrid = (img.width + img.height) // 2 # assume this as the size of 9x9 grid for now
 padding = dimOfGrid // 100 + 3 # number of pixels to ignore from edges
 print("A side of a grid is " + str(dimOfGrid) + "px long; choosing padding as " + str(padding) + "px\nAttempted Conversion:\n\n")
