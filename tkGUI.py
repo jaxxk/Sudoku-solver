@@ -106,9 +106,9 @@ app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
 
-w = Canvas(app, width = 600, height = 10)
+w = Canvas(app, width = 600, height = 10, highlightthickness = 0)
 w.pack()
-w.create_rectangle(0, 0, 600, 4, fill = "#696A8E") #, highlightthickness = 0
+w.create_rectangle(0, 0, 600, 4, fill = "#696A8E")
 
 gui = mainScreen(app)
 app.mainloop()
