@@ -3,6 +3,7 @@ from lxml import html
 from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
+
 import requests
 import webbrowser
 
@@ -37,10 +38,6 @@ def fetchRandomTable(midlist, megalist):
             innerloopcount += 1
             j += 1
         i += 1
-
-    # display megalist as a 9 * 9 "grid"
-    # for s in range(9):
-    #     print(megalist[s])
 
 
 def openGithub():
@@ -91,24 +88,15 @@ class mainScreen:
                 label.place(x = x * 40 + gridXOffset, y = y * 40 + gridYOffset)
                 cells[x].append(label)
 
-        # image = Image.open("sudoku.png")
-        # photo2 = ImageTk.PhotoImage(image)
-        # label2 = Label(image=photo)
-        # label2.image = photo
-        # label2.grid(row=0,column=2)
-
-        # self.close_button = Button(master, text="Close", command=master.quit)
-        # self.close_button.grid()
-
 
 app = Tk()
 app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
 
-w = Canvas(app, width = 600, height = 10, highlightthickness = 0)
-w.pack()
-w.create_rectangle(0, 0, 600, 4, fill = "#696A8E")
+line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
+line.pack()
+line.create_rectangle(0, 0, 600, 4, fill = "#696A8E")
 
 gui = mainScreen(app)
 app.mainloop()
