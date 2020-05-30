@@ -41,8 +41,8 @@ def selectImage(x, y, value):
 
 
 def fetchRandomTable(midlist, megalist):
-    #delete all rather than this
-    #midlist, megalist = ([] for i in range(2))
+    midlist.clear()
+    megalist.clear()
 
     page = requests.get("http://sudoku9x9.com")
     tree = html.fromstring(page.content)
@@ -70,6 +70,16 @@ def fetchRandomTable(midlist, megalist):
         i += 1
 
 
+def reGen():
+    fetchRandomTable(midlist, megalist)
+    for x in range(9):
+            for y in range(9):
+                newImage = selectImage(x, y, megalist[x][y])
+                photo = ImageTk.PhotoImage(newImage)
+                cells[x][y].config(image = photo)
+                cells[x][y].image = photo
+
+
 class mainScreen:
     def __init__(self, master):
 
@@ -94,7 +104,7 @@ class mainScreen:
 
         generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
         generateBD.place(x = 381, y = buttonYOffset)
-        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
         generateBT.place(x = 0, y = 0)
         
         manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
