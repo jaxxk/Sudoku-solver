@@ -14,7 +14,7 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-midlist, megalist, cells,copymega = ([] for i in range(4))
+midlist, megalist, cells, copymega = ([] for i in range(4))
 
 app = Tk()
 
@@ -22,7 +22,9 @@ app = Tk()
 def mouseDown(event):
     x = app.winfo_pointerx() - app.winfo_rootx()
     y = app.winfo_pointery() - app.winfo_rooty()
-    if (153 < x and x < 198 and 27 < y and y < 43):
+    if (gridXOffset < x and x < gridXOffset + 40 * 9 and gridYOffset < y and y < gridYOffset + 40 * 9):
+        print("x: " + str((x - gridXOffset) / 40) + ", y: " + str((y - gridYOffset) / 40))
+    elif (153 < x and x < 198 and 27 < y and y < 43):
         webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
 
 
