@@ -14,8 +14,8 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-midlist, megalist, cells, copymega = ([] for i in range(4))
-
+midlist, megalist, cells, original,solved = ([] for i in range(5))
+ifSolution = False;
 app = Tk()
 
 
@@ -71,6 +71,8 @@ def fetchRandomTable(midlist, megalist):
             innerloopcount += 1
             j += 1
         i += 1
+    original = megalist
+    # print("original: ",original)
 
 def reGen():
     fetchRandomTable(midlist, megalist)
@@ -82,13 +84,17 @@ def reGen():
                 cells[x][y].image = photo
 
 def showSolution():
-    replace_empty(megalist)
-    for x in range(9):
-            for y in range(9):
-                newImage = selectImage(x, y, megalist[x][y])
-                photo = ImageTk.PhotoImage(newImage)
-                cells[x][y].config(image = photo)
-                cells[x][y].image = photo
+    # replace_empty(megalist)
+    if (replace_empty(megalist)):
+        for x in range(9):
+                for y in range(9):
+                    newImage = selectImage(x, y, megalist[x][y])
+                    photo = ImageTk.PhotoImage(newImage)
+                    cells[x][y].config(image = photo)
+                    cells[x][y].image = photo
+    else:
+        print("it cant be solved")
+    solved = megalist
 
 class mainScreen:
     def __init__(self, master):
