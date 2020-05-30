@@ -3,7 +3,8 @@ from lxml import html
 from tkinter import *
 from PIL import Image, ImageTk
 from test import *
-#import tkinter
+
+import copy
 import requests
 import webbrowser
 
@@ -87,17 +88,17 @@ def showSolution(bt):
     global original, solved, megalist
     if not solved:
         print(original) # should be empty
-        original = megalist.copy()
+        original = copy.deepcopy(megalist)
         print(original) # should store original
         replace_empty(megalist)
         print(original) # why is this same as megalist?
-        solved = megalist.copy()
+        solved = copy.deepcopy(megalist)
 
     if (bt.cget('text') == " Show solution "):
-        megalist = solved.copy()
+        megalist = copy.deepcopy(solved)
         bt.config(text = " Hide solution ")
     else:
-        megalist = original.copy()
+        megalist = copy.deepcopy(original)
         bt.config(text = " Show solution ")
 
     for x in range(9):
