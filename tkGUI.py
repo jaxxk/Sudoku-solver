@@ -14,8 +14,10 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-midlist, megalist, cells, original,solved = ([] for i in range(5))
-ifSolution = False;
+solutionHidden = False;
+
+midlist, megalist, cells, original, solved = ([] for i in range(5))
+
 app = Tk()
 
 
@@ -71,8 +73,6 @@ def fetchRandomTable(midlist, megalist):
             innerloopcount += 1
             j += 1
         i += 1
-    original = megalist
-    # print("original: ",original)
 
 def reGen():
     fetchRandomTable(midlist, megalist)
@@ -83,23 +83,34 @@ def reGen():
                 cells[x][y].config(image = photo)
                 cells[x][y].image = photo
 
-def showSolution():
-    # replace_empty(megalist)
-    if (replace_empty(megalist)):
-        for x in range(9):
-                for y in range(9):
-                    newImage = selectImage(x, y, megalist[x][y])
-                    photo = ImageTk.PhotoImage(newImage)
-                    cells[x][y].config(image = photo)
-                    cells[x][y].image = photo
+def showSolution(bt):
+    global original, solved, megalist
+    if not solved:
+        print(original) # should be empty
+        original = megalist.copy()
+        print(original) # should store original
+        replace_empty(megalist)
+        print(original) # why is this same as megalist?
+        solved = megalist.copy()
+
+    if (bt.cget('text') == " Show solution "):
+        megalist = solved.copy()
+        bt.config(text = " Hide solution ")
     else:
-        print("it cant be solved")
-    solved = megalist
+        megalist = original.copy()
+        bt.config(text = " Show solution ")
+
+    for x in range(9):
+        for y in range(9):
+            newImage = selectImage(x, y, megalist[x][y])
+            photo = ImageTk.PhotoImage(newImage)
+            cells[x][y].config(image = photo)
+            cells[x][y].image = photo
+    
 
 class mainScreen:
     def __init__(self, master):
         fetchRandomTable(midlist, megalist)
-
 
         pathbuf = create_unicode_buffer(
             "assets\\fonts\\SF-Pro-Display-Light.otf")
@@ -136,28 +147,29 @@ class mainScreen:
         captureBT.place(x = 0, y = 0)
 
         # Manage current board
-        generateLabel = Label(app, text = "Manage current board", font = ("SF Pro Display", 11))
-        generateLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap)
+        manageLabel = Label(app, text = "Manage current board", font = ("SF Pro Display", 11))
+        manageLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap)
        
-        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
-        line1.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 20)
+        line2 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line2.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 20)
 
-        generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 137, height = buttonHeight)
-        generateBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
-        generateBT = Button(generateBD, text = " Show/hide soultion ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = showSolution)
-        generateBT.place(x = 0, y = 0)
+        solutionBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 137, height = buttonHeight)
+        solutionBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
+        solutionBT = Button(solutionBD, text = " Show solution ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        solutionBT.config(command = lambda: showSolution(solutionBT))
+        solutionBT.place(x = 0, y = 0)
         
-        manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
-        manualBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
-        manualBT = Button(manualBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
-        manualBT.place(x = 0, y = 0)
+        resetBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
+        resetBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
+        resetBT = Button(resetBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        resetBT.place(x = 0, y = 0)
 
         # Miscellaneous
-        generateLabel = Label(app, text = "Miscellaneous", font = ("SF Pro Display", 11))
-        generateLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 27)
+        miscLabel = Label(app, text = "Miscellaneous", font = ("SF Pro Display", 11))
+        miscLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 27)
        
-        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
-        line1.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
+        line3 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line3.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
 
         for x in range(9):
             cells.append([])
