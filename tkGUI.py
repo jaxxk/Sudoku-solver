@@ -87,18 +87,15 @@ def reGen():
 def showSolution(bt):
     global original, solved, megalist
     if not solved:
-        print(original) # should be empty
         original = copy.deepcopy(megalist)
-        print(original) # should store original
         replace_empty(megalist)
-        print(original) # why is this same as megalist?
         solved = copy.deepcopy(megalist)
 
     if (bt.cget('text') == " Show solution "):
-        megalist = copy.deepcopy(solved)
+        megalist = solved
         bt.config(text = " Hide solution ")
     else:
-        megalist = copy.deepcopy(original)
+        megalist = original
         bt.config(text = " Show solution ")
 
     for x in range(9):
