@@ -2,7 +2,7 @@ from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
 from tkinter import *
 from PIL import Image, ImageTk
-
+from test import *
 #import tkinter
 import requests
 import webbrowser
@@ -70,7 +70,6 @@ def fetchRandomTable(midlist, megalist):
             j += 1
         i += 1
 
-
 def reGen():
     fetchRandomTable(midlist, megalist)
     for x in range(9):
@@ -80,11 +79,18 @@ def reGen():
                 cells[x][y].config(image = photo)
                 cells[x][y].image = photo
 
-
+def showSolution():
+    replace_empty(megalist)
+    for x in range(9):
+            for y in range(9):
+                newImage = selectImage(x, y, megalist[x][y])
+                photo = ImageTk.PhotoImage(newImage)
+                cells[x][y].config(image = photo)
+                cells[x][y].image = photo
 class mainScreen:
     def __init__(self, master):
-
         fetchRandomTable(midlist, megalist)
+
 
         pathbuf = create_unicode_buffer(
             "assets\\fonts\\SF-Pro-Display-Light.otf")
@@ -129,7 +135,7 @@ class mainScreen:
 
         generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 137, height = buttonHeight)
         generateBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
-        generateBT = Button(generateBD, text = " Show/hide soultion ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
+        generateBT = Button(generateBD, text = " Show/hide soultion ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = showSolution)
         generateBT.place(x = 0, y = 0)
         
         manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)

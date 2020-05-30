@@ -1,55 +1,55 @@
-from lxml import html
-import requests
+# from lxml import html
+# import requests
 
-page = requests.get('http://sudoku9x9.com')
-tree = html.fromstring(page.content)
+# page = requests.get('http://sudoku9x9.com')
+# tree = html.fromstring(page.content)
 
-print("Generated Sudoku Board:\n")
+# print("Generated Sudoku Board:\n")
 
-"""
-for x in range(80):
-	list = tree.xpath('//*[@id="cell{}"]//text()'.format(x))
-	if list:
-		print(list[0])
-"""
+# """
+# for x in range(80):
+# 	list = tree.xpath('//*[@id="cell{}"]//text()'.format(x))
+# 	if list:
+# 		print(list[0])
+# """
 
-i = 0
+# i = 0
 
-#made many lists with 1 length [elem]
-#if so create a large 2d list that is 9*9 and add each tiny list in
+# #made many lists with 1 length [elem]
+# #if so create a large 2d list that is 9*9 and add each tiny list in
 
-midlist = []
-megalist = []
-#############################
-#step 1: get info from html page and convert them into 81 lists with a length of one (named list)
-#step 2: merge all 81 lists into one list with an length of 81 (named midlist)
-#step 3: split the 81 elements into 9 rows with 9 elements each as a matrix (named megalist)
-#step 4: display (megalist)
-################################
+# midlist = []
+# megalist = []
+# #############################
+# #step 1: get info from html page and convert them into 81 lists with a length of one (named list)
+# #step 2: merge all 81 lists into one list with an length of 81 (named midlist)
+# #step 3: split the 81 elements into 9 rows with 9 elements each as a matrix (named megalist)
+# #step 4: display (megalist)
+# ################################
 
-#taking in list values and adding them as elements in midlist
-#for x in range of row
-for x in range(9):
-	#for y in range of col
-	for y in range(9):
-		list = tree.xpath('//*[@id="cell{}"]//text()'.format(i))
-		if list:
-			midlist.extend(list)
-		else:
-			midlist.append(0)
+# #taking in list values and adding them as elements in midlist
+# #for x in range of row
+# for x in range(9):
+# 	#for y in range of col
+# 	for y in range(9):
+# 		list = tree.xpath('//*[@id="cell{}"]//text()'.format(i))
+# 		if list:
+# 			midlist.extend(list)
+# 		else:
+# 			midlist.append(0)
 
-		i += 1
+# 		i += 1
 
-#adding midlist elems as rows of 9 into megalist
-#innerloopcount will continue to increment throughout the 81 elements in the midlist
-innerloopcount = 0
-for i in range(9):
-	megalist.append([])
-	for j in range(9):
-		megalist[i].append(int(midlist[innerloopcount]))
-		innerloopcount += 1
-		j += 1
-	i += 1
+# #adding midlist elems as rows of 9 into megalist
+# #innerloopcount will continue to increment throughout the 81 elements in the midlist
+# innerloopcount = 0
+# for i in range(9):
+# 	megalist.append([])
+# 	for j in range(9):
+# 		megalist[i].append(int(midlist[innerloopcount]))
+# 		innerloopcount += 1
+# 		j += 1
+# 	i += 1
 
 def printgrid(megalist):
     for i in range (9):
@@ -60,14 +60,15 @@ def printgrid(megalist):
                 print(" | ", end="")
         
             if j == 8:
-                print(megalist[i][j]) 
+                print(megalist[j][i]) 
             else:
-                print(str(megalist[i][j]) + " ", end="")
+                print(str(megalist[j][i]) + " ", end="")
 #display megalist as a 9 * 9 "grid"
-printgrid(megalist)
+# printgrid(megalist)
 
-#finding empty slot, iterate thru the grid
-#maybe make it into a function
+# finding empty slot, iterate thru the grid
+# maybe make it into a function
+
 def find_empty(megalist):
 	for i in range(9):
 		for j in range(9):
@@ -140,7 +141,7 @@ def validate(megalist, potent_number, x, y): #, index_num):
                 return False
     return True
 
-replace_empty(megalist)
-print("-------------------------------")
-print("Solved board\n")
-printgrid(megalist)
+# replace_empty(megalist)
+# print("-------------------------------")
+# print("Solved board\n")
+# printgrid(megalist)
