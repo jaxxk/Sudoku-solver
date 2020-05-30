@@ -1,10 +1,8 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
-import tkinter as tk
+from lxml import html
 from tkinter import *
 from tkinter.ttk import *
 from PIL import Image, ImageTk
-from tkinter import font as tkfont  # python 3
-from lxml import html
 import requests
 import webbrowser
 
@@ -107,6 +105,10 @@ app = Tk()
 app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
+
+w = Canvas(app, width = 600, height = 10)
+w.pack()
+w.create_rectangle(0, 0, 600, 4, fill = "#696A8E") #, highlightthickness = 0
 
 gui = mainScreen(app)
 app.mainloop()
