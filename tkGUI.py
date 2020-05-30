@@ -1,22 +1,53 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
 from tkinter import *
-from tkinter.ttk import *
 from PIL import Image, ImageTk
 
+#import tkinter
 import requests
 import webbrowser
 
 # Configurations
 gridXOffset = 15
 gridYOffset = 50
+buttonHeight = 30
+buttonPadding = 4
+buttonYOffset = 51
 midlist, megalist, cells = ([] for i in range(3))
+
+app = Tk()
+
+
+def mouseDown(event):
+    x = app.winfo_pointerx() - app.winfo_rootx()
+    y = app.winfo_pointery() - app.winfo_rooty()
+    if (153 < x and x < 198 and 27 < y and y < 43):
+        webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+
+
+def selectImage(x, y, value):
+    imagePath = "assets/images/"
+    colorVariant = ""
+    if 2 < y and y < 6:
+        colorVariant = "o"
+        if 2 < x and x < 6:
+            colorVariant = "e"
+    else:
+        colorVariant = "e"
+        if 2 < x and x < 6:
+            colorVariant = "o"
+
+    return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
 
 
 def fetchRandomTable(midlist, megalist):
+    #delete all rather than this
+    #midlist, megalist = ([] for i in range(2))
+
     page = requests.get("http://sudoku9x9.com")
     tree = html.fromstring(page.content)
     i = 0
+
     # taking in list values and adding them as elements in midlist
     for x in range(9):  # row
         for y in range(9):  # col
@@ -39,30 +70,6 @@ def fetchRandomTable(midlist, megalist):
         i += 1
 
 
-def openGithub():
-    webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
-
-
-def selectImage(x, y, value):
-    imagePath = "assets/images/"
-    colorVariant = ""
-    if 2 < y and y < 6:
-        colorVariant = "o"
-        if 2 < x and x < 6:
-            colorVariant = "e"
-    else:
-        colorVariant = "e"
-        if 2 < x and x < 6:
-            colorVariant = "o"
-
-    return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
-
-
-def motion(event):
-    x,y = event.x,event.y
-    if (x >= 0 and x <= 46):
-         if (y >6 and y <= 8):
-            openGithub()
 class mainScreen:
     def __init__(self, master):
 
@@ -76,16 +83,29 @@ class mainScreen:
         titleLabel = Label(app, text = "SudokuSolver", font = ("SF Pro Display", 17))
         titleLabel.place(x = 15, y = 15)
 
+        githubLabel = Label(app, text = "Github↗", foreground = "blue", font = ("SF Pro Display", 10))
+        githubLabel.place(x = 153, y = 25)
 
-        buttonStyle = Style()
-        buttonStyle.configure("github.TButton", font = ("SF Pro Display", 10), foreground = "#3399FF", background = "#F2F2F2")
-        githubLabel = Label(app, text = "Github↗",foreground = "blue")
-        githubLabel.place(x = 150, y = 25)
+        generateLabel = Label(app, text = "Generate new board", font = ("SF Pro Display", 11))
+        generateLabel.place(x = 381, y = buttonYOffset - 27)
+       
+        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line1.place(x = 381, y = buttonYOffset - 7)
+
+        generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
+        generateBD.place(x = 381, y = buttonYOffset)
+        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        generateBT.place(x = 0, y = 0)
         
-
-        generateLabel = Label(app, text = "Generate New Board",font = ("SF Pro Display", 13))
-        generateLabel.place(x = 400, y = 25)
-
+        manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
+        manualBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
+        manualBT = Button(manualBD, text = " Manual Input ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        manualBT.place(x = 0, y = 0)
+        
+        captureBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 106, height = buttonHeight)
+        captureBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 2)
+        captureBT = Button(captureBD, text = " From Screen.. ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        captureBT.place(x = 0, y = 0)
 
         for x in range(9):
             cells.append([])
@@ -98,16 +118,14 @@ class mainScreen:
                 cells[x].append(label)
 
 
-app = Tk()
 app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
-app.bind("<Button-1>",motion)
-
+app.bind("<Button-1>",mouseDown)
 
 line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
 line.pack()
-line.create_rectangle(0, 0, 600, 4, fill = "#696A8E")
+line.create_rectangle(0, 0, 600, 3, fill = "#696A8E")
 
 gui = mainScreen(app)
 app.mainloop()
