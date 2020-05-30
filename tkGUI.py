@@ -14,7 +14,7 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-midlist, megalist, cells = ([] for i in range(3))
+midlist, megalist, cells,copymega = ([] for i in range(4))
 
 app = Tk()
 
@@ -87,6 +87,7 @@ def showSolution():
                 photo = ImageTk.PhotoImage(newImage)
                 cells[x][y].config(image = photo)
                 cells[x][y].image = photo
+
 class mainScreen:
     def __init__(self, master):
         fetchRandomTable(midlist, megalist)
