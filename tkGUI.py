@@ -11,7 +11,6 @@ import requests
 import webbrowser
 
 # Configurations
-selectedGrid
 gridXOffset = 15
 gridYOffset = 50
 buttonGap = 12
