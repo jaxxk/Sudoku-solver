@@ -127,23 +127,23 @@ def keyPress(event):
     if selected:
         note = event.char
         if note == "1":
-            playsound("assets/audio/celC5.wav")
+            playsound("assets/audio/celC5.wav", block = False)
         elif note == "2":
-            playsound("assets/audio/celD5.wav")
+            playsound("assets/audio/celD5.wav", block = False)
         elif note == "3":
-            playsound("assets/audio/celE5.wav")
+            playsound("assets/audio/celE5.wav", block = False)
         elif note == "4":
-            playsound("assets/audio/celF5.wav")
+            playsound("assets/audio/celF5.wav", block = False)
         elif note == "5":
-            playsound("assets/audio/celFs5.wav")
+            playsound("assets/audio/celFs5.wav", block = False)
         elif note == "6":
-            playsound("assets/audio/celG5.wav")
+            playsound("assets/audio/celG5.wav", block = False)
         elif note == "7":
-            playsound("assets/audio/celA5.wav")
+            playsound("assets/audio/celA5.wav", block = False)
         elif note == "8":
-            playsound("assets/audio/celB5.wav")
+            playsound("assets/audio/celB5.wav", block = False)
         elif note == "9":
-            playsound("assets/audio/celC6.wav")
+            playsound("assets/audio/celC6.wav", block = False)
 
 
 class mainScreen:
