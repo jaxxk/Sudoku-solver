@@ -1,9 +1,10 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
-from tkinter import messagebox
-from tkinter import *
-from PIL import Image, ImageTk
 from test import *
+from tkinter import *
+from tkinter import messagebox
+from playsound import playsound
+from PIL import Image, ImageTk
 
 import copy
 import math
@@ -17,14 +18,15 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-solutionHidden = False;
 
+selected = ()
 cells, cursor, midlist, megalist, original, solved = ([] for i in range(6))
 
 app = Tk()
 
 
 def mouseDown(event):
+    global selected
     x = app.winfo_pointerx() - app.winfo_rootx()
     y = app.winfo_pointery() - app.winfo_rooty()
     if (gridXOffset < x and x < gridXOffset + 40 * 9 and gridYOffset < y and y < gridYOffset + 40 * 9):
@@ -36,6 +38,7 @@ def mouseDown(event):
         cursor[1].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
         cursor[2].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset + 37 + yth * 40)
         cursor[3].place(x = gridXOffset + 37 + xth * 40, y = gridYOffset - 1 + yth * 40)
+        selected = (x, y)
     elif (153 < x and x < 198 and 27 < y and y < 43):
         webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
 
@@ -119,6 +122,29 @@ def showSolution(bd, bt):
             cells[x][y].config(image = photo)
             cells[x][y].image = photo
     
+
+def keyPress(event):
+    if selected:
+        note = event.char
+        if note == "1":
+            playsound("assets/audio/celC5.wav")
+        elif note == "2":
+            playsound("assets/audio/celD5.wav")
+        elif note == "3":
+            playsound("assets/audio/celE5.wav")
+        elif note == "4":
+            playsound("assets/audio/celF5.wav")
+        elif note == "5":
+            playsound("assets/audio/celFs5.wav")
+        elif note == "6":
+            playsound("assets/audio/celG5.wav")
+        elif note == "7":
+            playsound("assets/audio/celA5.wav")
+        elif note == "8":
+            playsound("assets/audio/celB5.wav")
+        elif note == "9":
+            playsound("assets/audio/celC6.wav")
+
 
 class mainScreen:
     def __init__(self, master):
@@ -208,7 +234,11 @@ class mainScreen:
 app.title("SudokuSolver")
 app.geometry("600x450")
 app["bg"] = "#F2F2F2"
+
 app.bind("<Button-1>",mouseDown)
+
+for i in range(1, 10):
+    app.bind(i, keyPress)
 
 line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
 line.pack()
