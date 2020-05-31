@@ -1,14 +1,17 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
+from tkinter import messagebox
 from tkinter import *
 from PIL import Image, ImageTk
 from test import *
 
 import copy
+import math
 import requests
 import webbrowser
 
 # Configurations
+selectedGrid
 gridXOffset = 15
 gridYOffset = 50
 buttonGap = 12
@@ -17,7 +20,7 @@ buttonPadding = 4
 buttonYOffset = 51
 solutionHidden = False;
 
-midlist, megalist, cells, original, solved = ([] for i in range(5))
+cells, cursor, midlist, megalist, original, solved = ([] for i in range(6))
 
 app = Tk()
 
@@ -26,7 +29,14 @@ def mouseDown(event):
     x = app.winfo_pointerx() - app.winfo_rootx()
     y = app.winfo_pointery() - app.winfo_rooty()
     if (gridXOffset < x and x < gridXOffset + 40 * 9 and gridYOffset < y and y < gridYOffset + 40 * 9):
-        print("x: " + str((x - gridXOffset) / 40) + ", y: " + str((y - gridYOffset) / 40))
+        xth = math.ceil((x - gridXOffset) / 40) - 1
+        yth = math.ceil((y - gridYOffset) / 40) - 1
+        for i in range(4):
+            cursor[i].place_forget()
+        cursor[0].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
+        cursor[1].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
+        cursor[2].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset + 37 + yth * 40)
+        cursor[3].place(x = gridXOffset + 37 + xth * 40, y = gridYOffset - 1 + yth * 40)
     elif (153 < x and x < 198 and 27 < y and y < 43):
         webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
 
@@ -84,7 +94,7 @@ def reGen():
                 cells[x][y].config(image = photo)
                 cells[x][y].image = photo
 
-def showSolution(bt):
+def showSolution(bd, bt):
     global original, solved, megalist
     if not solved:
         original = copy.deepcopy(megalist)
@@ -92,10 +102,15 @@ def showSolution(bt):
         solved = copy.deepcopy(megalist)
 
     if (bt.cget('text') == " Show solution "):
+        prompt = messagebox.askyesno("Confirmation", "Would you like to reveal the solution?")
+        if not prompt:
+            return
         megalist = solved
+        bd.config(width = 98)
         bt.config(text = " Hide solution ")
     else:
         megalist = original
+        bd.config(width = 105)
         bt.config(text = " Show solution ")
 
     for x in range(9):
@@ -151,10 +166,10 @@ class mainScreen:
         line2 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line2.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 20)
 
-        solutionBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 137, height = buttonHeight)
+        solutionBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 105, height = buttonHeight)
         solutionBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
         solutionBT = Button(solutionBD, text = " Show solution ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
-        solutionBT.config(command = lambda: showSolution(solutionBT))
+        solutionBT.config(command = lambda: showSolution(solutionBD, solutionBT))
         solutionBT.place(x = 0, y = 0)
         
         resetBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
@@ -169,6 +184,7 @@ class mainScreen:
         line3 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line3.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
 
+        # Draw 9x9 grid
         for x in range(9):
             cells.append([])
             for y in range(9):
@@ -178,6 +194,16 @@ class mainScreen:
                 label.image = photo
                 label.place(x = x * 40 + gridXOffset, y = y * 40 + gridYOffset)
                 cells[x].append(label)
+
+        # Draw cursor
+        c1 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 41, height = 3)
+        cursor.append(c1)
+        c2 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
+        cursor.append(c2)
+        c3 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 41, height = 3)
+        cursor.append(c3)
+        c4 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
+        cursor.append(c4)
 
 
 app.title("SudokuSolver")
