@@ -98,10 +98,6 @@ def reGen():
 
 def showSolution(bd, bt):
     global original, solved, megalist
-    if not solved:
-        original = copy.deepcopy(megalist)
-        replace_empty(megalist)
-        solved = copy.deepcopy(megalist)
 
     if (bt.cget('text') == " Show solution "):
         prompt = messagebox.askyesno("Confirmation", "Would you like to reveal the solution?")
@@ -148,6 +144,7 @@ def keyPress(event):
 
 class mainScreen:
     def __init__(self, master):
+        global original, solved, megalist
         fetchRandomTable(midlist, megalist)
 
         pathbuf = create_unicode_buffer(
@@ -219,6 +216,12 @@ class mainScreen:
                 label.image = photo
                 label.place(x = x * 40 + gridXOffset, y = y * 40 + gridYOffset)
                 cells[x].append(label)
+
+        # solve the board in advance when new board is loaded; always do this after drawing
+        if not solved:
+            original = copy.deepcopy(megalist)
+            replace_empty(megalist)
+            solved = copy.deepcopy(megalist)
 
         # Draw cursor
         c1 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 41, height = 3)
