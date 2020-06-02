@@ -1,10 +1,11 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
-from test import *
 from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
-from PIL import Image, ImageTk
+
+from sudokuAlgorithm import *
+from sudokuBoard import *
 
 import copy
 import math
@@ -21,132 +22,117 @@ buttonYOffset = 51
 
 app = Tk()
 
-selected = ()
-cells, cursor, midlist, megalist, original, solved = ([] for i in range(6))
+class mainScreen:
+    board, cells, cursor, original, solved = ([] for i in range(5))
+    selected = ()
+    
+    def fetchRandomTable(self):
+        tempBoard = []
+        self.board.clear()
 
+        page = requests.get("http://sudoku9x9.com")
+        tree = html.fromstring(page.content)
+        i = 0
 
-def mouseDown(event):
-    global selected
-    x = app.winfo_pointerx() - app.winfo_rootx()
-    y = app.winfo_pointery() - app.winfo_rooty()
-    if (gridXOffset < x and x < gridXOffset + 40 * 9 and gridYOffset < y and y < gridYOffset + 40 * 9):
-        xth = math.ceil((x - gridXOffset) / 40) - 1
-        yth = math.ceil((y - gridYOffset) / 40) - 1
-        for i in range(4):
-            cursor[i].place_forget()
-        cursor[0].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
-        cursor[1].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
-        cursor[2].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset + 37 + yth * 40)
-        cursor[3].place(x = gridXOffset + 37 + xth * 40, y = gridYOffset - 1 + yth * 40)
-        selected = (x, y)
-    elif (153 < x and x < 198 and 27 < y and y < 43):
-        webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+        # taking in list values and adding them as elements in midlist
+        for x in range(9): # row
+            for y in range(9): # col
+                list = tree.xpath("//*[@id='cell{}']//text()".format(i))
+                if list:
+                    tempBoard.extend(list)
+                else:
+                    tempBoard.append(0)
+                i += 1
 
-
-def selectImage(x, y, value):
-    imagePath = "assets/images/"
-    colorVariant = ""
-    if 2 < y and y < 6:
-        colorVariant = "o"
-        if 2 < x and x < 6:
-            colorVariant = "e"
-    else:
-        colorVariant = "e"
-        if 2 < x and x < 6:
-            colorVariant = "o"
-
-    return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
-
-
-def fetchRandomTable(midlist, megalist):
-    midlist.clear()
-    megalist.clear()
-
-    page = requests.get("http://sudoku9x9.com")
-    tree = html.fromstring(page.content)
-    i = 0
-
-    # taking in list values and adding them as elements in midlist
-    for x in range(9):  # row
-        for y in range(9):  # col
-            list = tree.xpath("//*[@id='cell{}']//text()".format(i))
-            if list:
-                midlist.extend(list)
-            else:
-                midlist.append(0)
+        # adding midlist elems as rows of 9 into megalist
+        # innerloopcount will continue to increment throughout the 81 elements in the midlist
+        innerloopcount = 0
+        for i in range(9):
+            self.board.append([])
+            for j in range(9):
+                self.board[i].append(int(tempBoard[innerloopcount]))
+                innerloopcount += 1
+                j += 1
             i += 1
 
-    # adding midlist elems as rows of 9 into megalist
-    # innerloopcount will continue to increment throughout the 81 elements in the midlist
-    innerloopcount = 0
-    for i in range(9):
-        megalist.append([])
-        for j in range(9):
-            megalist[i].append(int(midlist[innerloopcount]))
-            innerloopcount += 1
-            j += 1
-        i += 1
 
-def reGen():
-    fetchRandomTable(midlist, megalist)
-    for x in range(9):
+    def reGen(self):
+        self.fetchRandomTable()
+        for x in range(9):
+                for y in range(9):
+                    newImage = selectImage(x, y, self.board[x][y])
+                    photo = ImageTk.PhotoImage(newImage)
+                    self.cells[x][y].config(image = photo)
+                    self.cells[x][y].image = photo
+
+
+    def keyPress(self, event):
+        if self.selected:
+            note = event.char
+            if note == "1":
+                playsound("assets/audio/celC5.wav", block = False)
+            elif note == "2":
+                playsound("assets/audio/celD5.wav", block = False)
+            elif note == "3":
+                playsound("assets/audio/celE5.wav", block = False)
+            elif note == "4":
+                playsound("assets/audio/celF5.wav", block = False)
+            elif note == "5":
+                playsound("assets/audio/celFs5.wav", block = False)
+            elif note == "6":
+                playsound("assets/audio/celG5.wav", block = False)
+            elif note == "7":
+                playsound("assets/audio/celA5.wav", block = False)
+            elif note == "8":
+                playsound("assets/audio/celB5.wav", block = False)
+            elif note == "9":
+                playsound("assets/audio/celC6.wav", block = False)
+
+
+    def mouseDown(self, event):
+        x = app.winfo_pointerx() - app.winfo_rootx()
+        y = app.winfo_pointery() - app.winfo_rooty()
+        if (gridXOffset < x and x < gridXOffset + 40 * 9 and gridYOffset < y and y < gridYOffset + 40 * 9):
+            xth = math.ceil((x - gridXOffset) / 40) - 1
+            yth = math.ceil((y - gridYOffset) / 40) - 1
+            for i in range(4):
+                self.cursor[i].place_forget()
+            self.cursor[0].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
+            self.cursor[1].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
+            self.cursor[2].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset + 37 + yth * 40)
+            self.cursor[3].place(x = gridXOffset + 37 + xth * 40, y = gridYOffset - 1 + yth * 40)
+            self.selected = (x, y)
+        elif (153 < x and x < 198 and 27 < y and y < 43):
+            webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+
+
+    def showSolution(self, bd, bt):
+        if (bt.cget('text') == " Show solution "):
+            prompt = messagebox.askyesno("Confirmation", "Would you like to reveal the solution?")
+            if not prompt:
+                return
+            self.board = self.solved
+            bd.config(width = 98)
+            bt.config(text = " Hide solution ")
+        else:
+            self.board = self.original
+            bd.config(width = 105)
+            bt.config(text = " Show solution ")
+
+        for x in range(9):
             for y in range(9):
-                newImage = selectImage(x, y, megalist[x][y])
+                newImage = selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(newImage)
-                cells[x][y].config(image = photo)
-                cells[x][y].image = photo
-
-def showSolution(bd, bt):
-    global original, solved, megalist
-
-    if (bt.cget('text') == " Show solution "):
-        prompt = messagebox.askyesno("Confirmation", "Would you like to reveal the solution?")
-        if not prompt:
-            return
-        megalist = solved
-        bd.config(width = 98)
-        bt.config(text = " Hide solution ")
-    else:
-        megalist = original
-        bd.config(width = 105)
-        bt.config(text = " Show solution ")
-
-    for x in range(9):
-        for y in range(9):
-            newImage = selectImage(x, y, megalist[x][y])
-            photo = ImageTk.PhotoImage(newImage)
-            cells[x][y].config(image = photo)
-            cells[x][y].image = photo
-    
-
-def keyPress(event):
-    if selected:
-        note = event.char
-        if note == "1":
-            playsound("assets/audio/celC5.wav", block = False)
-        elif note == "2":
-            playsound("assets/audio/celD5.wav", block = False)
-        elif note == "3":
-            playsound("assets/audio/celE5.wav", block = False)
-        elif note == "4":
-            playsound("assets/audio/celF5.wav", block = False)
-        elif note == "5":
-            playsound("assets/audio/celFs5.wav", block = False)
-        elif note == "6":
-            playsound("assets/audio/celG5.wav", block = False)
-        elif note == "7":
-            playsound("assets/audio/celA5.wav", block = False)
-        elif note == "8":
-            playsound("assets/audio/celB5.wav", block = False)
-        elif note == "9":
-            playsound("assets/audio/celC6.wav", block = False)
-        
+                self.cells[x][y].config(image = photo)
+                self.cells[x][y].image = photo
 
 
-class mainScreen:
-    def __init__(self, master):
-        global original, solved, megalist
-        fetchRandomTable(midlist, megalist)
+    def __init__(self, root):
+        app.bind("<Button-1>", self.mouseDown)
+        for i in range(1, 10):
+            app.bind(i, self.keyPress)
+
+        self.fetchRandomTable()
 
         pathbuf = create_unicode_buffer(
             "assets\\fonts\\SF-Pro-Display-Regular.otf")
@@ -169,7 +155,7 @@ class mainScreen:
 
         generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
         generateBD.place(x = 381, y = buttonYOffset)
-        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
+        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.reGen)
         generateBT.place(x = 0, y = 0)
         
         manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
@@ -192,7 +178,7 @@ class mainScreen:
         solutionBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 105, height = buttonHeight)
         solutionBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
         solutionBT = Button(solutionBD, text = " Show solution ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
-        solutionBT.config(command = lambda: showSolution(solutionBD, solutionBT))
+        solutionBT.config(command = lambda: self.showSolution(solutionBD, solutionBT))
         solutionBT.place(x = 0, y = 0)
         
         resetBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
@@ -209,40 +195,35 @@ class mainScreen:
 
         # Draw 9x9 grid
         for x in range(9):
-            cells.append([])
+            self.cells.append([])
             for y in range(9):
-                image = selectImage(x, y, megalist[x][y])
+                image = selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(image)
                 label = Label(image = photo)
                 label.image = photo
                 label.place(x = x * 40 + gridXOffset, y = y * 40 + gridYOffset)
-                cells[x].append(label)
+                self.cells[x].append(label)
 
         # solve the board in advance when new board is loaded; always do this after drawing
-        if not solved:
-            original = copy.deepcopy(megalist)
-            replace_empty(megalist)
-            solved = copy.deepcopy(megalist)
+        if not self.solved:
+            self.original = copy.deepcopy(self.board)
+            replace_empty(self.board)
+            self.solved = copy.deepcopy(self.board)
 
         # Draw cursor
         c1 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 41, height = 3)
-        cursor.append(c1)
+        self.cursor.append(c1)
         c2 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
-        cursor.append(c2)
+        self.cursor.append(c2)
         c3 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 41, height = 3)
-        cursor.append(c3)
+        self.cursor.append(c3)
         c4 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
-        cursor.append(c4)
+        self.cursor.append(c4)
 
 def main():
     app.title("SudokuSolver")
     app.geometry("600x450")
     app["bg"] = "#F2F2F2"
-
-    app.bind("<Button-1>",mouseDown)
-
-    for i in range(1, 10):
-        app.bind(i, keyPress)
 
     line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
     line.pack()
