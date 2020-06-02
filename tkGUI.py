@@ -19,10 +19,10 @@ buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
 
+app = Tk()
+
 selected = ()
 cells, cursor, midlist, megalist, original, solved = ([] for i in range(6))
-
-app = Tk()
 
 
 def mouseDown(event):
@@ -233,89 +233,22 @@ class mainScreen:
         c4 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
         cursor.append(c4)
 
+def main():
+    app.title("SudokuSolver")
+    app.geometry("600x450")
+    app["bg"] = "#F2F2F2"
 
-app.title("SudokuSolver")
-app.geometry("600x450")
-app["bg"] = "#F2F2F2"
+    app.bind("<Button-1>",mouseDown)
 
-app.bind("<Button-1>",mouseDown)
+    for i in range(1, 10):
+        app.bind(i, keyPress)
 
-for i in range(1, 10):
-    app.bind(i, keyPress)
+    line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
+    line.pack()
+    line.create_rectangle(0, 0, 600, 3, fill = "#696A8E")
 
-line = Canvas(app, width = 600, height = 10, highlightthickness = 0)
-line.pack()
-line.create_rectangle(0, 0, 600, 3, fill = "#696A8E")
+    gui = mainScreen(app)
+    app.mainloop()
 
-gui = mainScreen(app)
-app.mainloop()
-
-# class SampleApp(tk.Tk):
-
-#     def __init__(self, *args, **kwargs):
-#         tk.Tk.__init__(self, *args, **kwargs)
-
-#         self.title_font = tkfont.Font(family="Helvetica", size=18, weight="bold", slant="italic")
-
-#         # the container is where we"ll stack a bunch of frames
-#         # on top of each other, then the one we want visible
-#         # will be raised above the others
-#         container = tk.Frame(self)
-#         container.pack(side="top", fill="both", expand=True)
-#         container.grid_rowconfigure(0, weight=1)
-#         container.grid_columnconfigure(0, weight=1)
-
-#         self.frames = {}
-#         for F in (StartPage, PageOne):
-#             page_name = F.__name__
-#             frame = F(parent=container, controller=self)
-#             self.frames[page_name] = frame
-
-#             # put all of the pages in the same location;
-#             # the one on the top of the stacking order
-#             # will be the one that is visible.
-#             frame.grid(row=0, column=0, sticky="nsew")
-
-#         self.show_frame("StartPage")
-
-#     def show_frame(self, page_name):
-#         "Show a frame for the given page name"
-#         frame = self.frames[page_name]
-#         frame.tkraise()
-
-
-# class StartPage(tk.Frame):
-
-#     def __init__(self, parent, controller):
-#       tk.Frame.__init__(self, parent)
-#       self.controller = controller
-#       label = tk.Label(self, text="This is the start page", font=controller.title_font)
-#       label.pack(side="top", fill="x", pady=10)
-#       button1 = tk.Button(self, text="Go to Page One",
-#                             command= self.nextPage())
-#       image = Image.open("test.png")
-#       photo = ImageTk.PhotoImage(image)
-#       self.label = Label(image=photo)
-#       self.label.image = photo
-#       self.label.pack()
-#       button1.pack()
-#     def nextPage(self):
-#       return self.controller.show_frame("PageOne")
-
-
-# class PageOne(tk.Frame):
-
-#     def __init__(self, parent, controller):
-#         tk.Frame.__init__(self, parent)
-#         self.controller = controller
-#         label = tk.Label(self, text="This is page 1", font=controller.title_font)
-#         label.pack(side="top", fill="x", pady=10)
-#         self.label.pack_forget()
-#         button = tk.Button(self, text="Go to the start page",
-#                            command=lambda: controller.show_frame("StartPage"))
-#         button.pack()
-
-
-# if __name__ == "__main__":
-#     app = SampleApp()
-#     app.mainloop()
+if __name__=="__main__": 
+    main()
