@@ -24,14 +24,17 @@ app = Tk()
 
 class mainScreen:
     board, cells, cursor, original, solved = ([] for i in range(5))
+    levels = ["Beginner", "Intermediate", "Advanced", "Expert", "Master"]
     selected = () # x, y
+    dropDown = StringVar(app)
     
     # Fetches a new random table of given difficulty and replaces board
-    def fetchRandomTable(self):
+    def fetchRandomTable(self, level):
         tempBoard = []
         self.board.clear()
-
-        page = requests.get("http://sudoku9x9.com")
+        
+        link = "http://sudoku9x9.com/?level=" + str(self.levels.index(level))
+        page = requests.get(link)
         tree = html.fromstring(page.content)
         i = 0
 
@@ -58,8 +61,9 @@ class mainScreen:
 
 
     # Grabs new board and updates 9x9 grid
-    def reGen(self):
-        self.fetchRandomTable()
+    def reGen(self, level):
+        self.dropDown.set(" Random Generation")
+        self.fetchRandomTable(level)
         for x in range(9):
                 for y in range(9):
                     newImage = selectImage(x, y, self.board[x][y])
@@ -135,7 +139,7 @@ class mainScreen:
     # main
     def __init__(self, root):
         # Grab a new table to work with
-        self.fetchRandomTable()
+        self.fetchRandomTable(self.levels[2])
 
         # Grab a font from path to use (needs replacement)
         pathbuf = create_unicode_buffer(
@@ -154,15 +158,17 @@ class mainScreen:
         generateLabel = Label(app, text = "Generate new board", font = ("SF Pro Display", 11))
         generateLabel.place(x = 381, y = buttonYOffset - 27)
        
-        line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line1 = Frame(app, bd = 0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line1.place(x = 381, y = buttonYOffset - 7)
 
-        generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
+        self.dropDown.set(" Random Generation")
+        generateBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 172, height = buttonHeight)
         generateBD.place(x = 381, y = buttonYOffset)
-        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.reGen)
+        generateBT = OptionMenu(generateBD, self.dropDown, *self.levels, command = self.reGen)
+        generateBT.config(bg = "white", font = ("SF Pro Display", 11), relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1, activebackground = "white")
         generateBT.place(x = 0, y = 0)
         
-        manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
+        manualBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
         manualBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
         manualBT = Button(manualBD, text = " Manual Input ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
         manualBT.place(x = 0, y = 0)
@@ -176,16 +182,16 @@ class mainScreen:
         manageLabel = Label(app, text = "Manage current board", font = ("SF Pro Display", 11))
         manageLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap)
        
-        line2 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line2 = Frame(app, bd = 0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line2.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 20)
 
-        solutionBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 105, height = buttonHeight)
+        solutionBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 105, height = buttonHeight)
         solutionBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
         solutionBT = Button(solutionBD, text = " Show solution ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
         solutionBT.config(command = lambda: self.showSolution(solutionBD, solutionBT))
         solutionBT.place(x = 0, y = 0)
         
-        resetBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
+        resetBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
         resetBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
         resetBT = Button(resetBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
         resetBT.place(x = 0, y = 0)
@@ -194,7 +200,7 @@ class mainScreen:
         miscLabel = Label(app, text = "Miscellaneous", font = ("SF Pro Display", 11))
         miscLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 27)
        
-        line3 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
+        line3 = Frame(app, bd = 0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line3.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
 
         # Draw 9x9 grid
