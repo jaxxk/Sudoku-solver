@@ -24,7 +24,7 @@ app = Tk()
 
 class mainScreen:
     board, cells, cursor, original, solved = ([] for i in range(5))
-    levels = ["Beginner", "Intermediate", "Advanced", "Expert", "Master"]
+    levels = ["Beginner", "Intermediate                    ", "Advanced", "Expert", "Master"]
     selected = () # x, y
     dropDown = StringVar(app)
     
