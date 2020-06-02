@@ -148,7 +148,7 @@ class mainScreen:
         fetchRandomTable(midlist, megalist)
 
         pathbuf = create_unicode_buffer(
-            "assets\\fonts\\SF-Pro-Display-Light.otf")
+            "assets\\fonts\\SF-Pro-Display-Regular.otf")
         AddFontResourceEx = windll.gdi32.AddFontResourceExA
         AddFontResourceEx(byref(pathbuf), 0x10, 0)
 
