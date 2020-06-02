@@ -26,4 +26,3 @@ def validate(megalist, user_number, x, y):
             if grid_check == megalist[w][v]:
                 #duplicate found in grid --> return duplicate coords (w,v) and user input coord (x,y)
                 return (w,v), (x,y)
-    return True
