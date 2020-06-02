@@ -24,8 +24,9 @@ app = Tk()
 
 class mainScreen:
     board, cells, cursor, original, solved = ([] for i in range(5))
-    selected = ()
+    selected = () # x, y
     
+    # Fetches a new random table of given difficulty and replaces board
     def fetchRandomTable(self):
         tempBoard = []
         self.board.clear()
@@ -56,6 +57,7 @@ class mainScreen:
             i += 1
 
 
+    # Grabs new board and updates 9x9 grid
     def reGen(self):
         self.fetchRandomTable()
         for x in range(9):
@@ -66,6 +68,7 @@ class mainScreen:
                     self.cells[x][y].image = photo
 
 
+    # Event handler for key press (1 - 9)
     def keyPress(self, event):
         if self.selected:
             note = event.char
@@ -89,6 +92,7 @@ class mainScreen:
                 playsound("assets/audio/celC6.wav", block = False)
 
 
+    # Event handler for mouseDown; opens github page or replaces selected tuple value
     def mouseDown(self, event):
         x = app.winfo_pointerx() - app.winfo_rootx()
         y = app.winfo_pointery() - app.winfo_rooty()
@@ -106,6 +110,7 @@ class mainScreen:
             webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
 
 
+    # Updates the current board with solution or hides it
     def showSolution(self, bd, bt):
         if (bt.cget('text') == " Show solution "):
             prompt = messagebox.askyesno("Confirmation", "Would you like to reveal the solution?")
@@ -127,13 +132,12 @@ class mainScreen:
                 self.cells[x][y].image = photo
 
 
+    # main
     def __init__(self, root):
-        app.bind("<Button-1>", self.mouseDown)
-        for i in range(1, 10):
-            app.bind(i, self.keyPress)
-
+        # Grab a new table to work with
         self.fetchRandomTable()
 
+        # Grab a font from path to use (needs replacement)
         pathbuf = create_unicode_buffer(
             "assets\\fonts\\SF-Pro-Display-Regular.otf")
         AddFontResourceEx = windll.gdi32.AddFontResourceExA
@@ -219,6 +223,11 @@ class mainScreen:
         self.cursor.append(c3)
         c4 = Frame(app, bd = 0, highlightbackground = "#212D40", highlightthickness = 3, width = 3, height = 41)
         self.cursor.append(c4)
+
+        # Bind event handlers
+        app.bind("<Button-1>", self.mouseDown)
+        for i in range(1, 10):
+            app.bind(i, self.keyPress)
 
 def main():
     app.title("SudokuSolver")
