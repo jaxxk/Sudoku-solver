@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
 from PIL import Image, ImageTk
+import re
 
 import copy
 import math
@@ -58,11 +59,11 @@ def selectImage(x, y, value):
     return Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
 
 
-def fetchRandomTable(midlist, megalist):
+def fetchRandomTable(midlist, megalist,level):
     midlist.clear()
     megalist.clear()
-
-    page = requests.get("http://sudoku9x9.com")
+    link = "http://sudoku9x9.com/?level=" + level[-1]
+    page = requests.get(link)
     tree = html.fromstring(page.content)
     i = 0
 
@@ -87,8 +88,9 @@ def fetchRandomTable(midlist, megalist):
             j += 1
         i += 1
 
-def reGen():
-    fetchRandomTable(midlist, megalist)
+
+def reGen(level):
+    fetchRandomTable(midlist, megalist,level)
     for x in range(9):
             for y in range(9):
                 newImage = selectImage(x, y, megalist[x][y])
@@ -146,7 +148,8 @@ def keyPress(event):
 class mainScreen:
     def __init__(self, master):
         global original, solved, megalist
-        fetchRandomTable(midlist, megalist)
+        level = "Generate Level 1"
+        fetchRandomTable(midlist, megalist,level)
 
         pathbuf = create_unicode_buffer(
             "assets\\fonts\\SF-Pro-Display-Regular.otf")
@@ -167,10 +170,19 @@ class mainScreen:
         line1 = Frame(app, bd=0, highlightbackground = "#666666", highlightthickness = 1, width = 150, height = 2)
         line1.place(x = 381, y = buttonYOffset - 7)
 
-        generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
-        generateBD.place(x = 381, y = buttonYOffset)
-        generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
-        generateBT.place(x = 0, y = 0)
+        # generateBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
+        # generateBD.place(x = 381, y = buttonYOffset)
+        # generateBT = Button(generateBD, text = " Random Generation ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = reGen)
+        # generateBT.place(x = 0, y = 0)
+        optionList = ["Generate Level 1","Generate Level 2","Generate Level 3","Generate Level 4","Generate Level 5"]
+        tkvar = StringVar(app)
+        tkvar.set(optionList[0])
+        dropBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 144, height = buttonHeight)
+        dropBD.place(x = 381, y = buttonYOffset)
+        
+        drop = OptionMenu(dropBD, tkvar, *optionList ,command=reGen)
+        drop.config(bg = "white",font = ("SF Pro Display", 11), relief = "solid", borderwidth = 0)
+        drop.place(x = 0 , y = 0)
         
         manualBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 98, height = buttonHeight)
         manualBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
