@@ -1,5 +1,6 @@
 from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
 from lxml import html
+import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
@@ -24,10 +25,12 @@ app = Tk()
 
 class mainScreen:
     altered, board, cells, cursor, original, solved = ([] for i in range(6))
-    levels = ["Beginner", "Intermediate                    ", "Advanced", "Expert", "Master"]
+    levels = ["Beginner", "Intermediate", "Advanced", "Expert", "Master"]
+    psms = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
     selected = () # x, y
 
     dropDown = StringVar(app)
+    dropDown2 = StringVar(app)
     solutionBD, solutionBT = (None for i in range(2))
 
     # Fetches a new random table of given difficulty and replaces board
@@ -63,7 +66,6 @@ class mainScreen:
         tempBoard = []
         self.board.clear()
         self.solved.clear()
-        
         link = "http://sudoku9x9.com/?level=" + str(self.levels.index(level))
         page = requests.get(link)
         tree = html.fromstring(page.content)
@@ -266,6 +268,25 @@ class mainScreen:
        
         line3 = Frame(app, bd = 0, highlightbackground = "#666666", highlightthickness = 1, width = 172, height = 2)
         line3.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 47)
+
+        psmLabel = Label(app, text = "psm", font = ("SF Pro Display", 11))
+        psmLabel.config(relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1, activebackground = "white")
+        psmLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 54)
+        self.dropDown2.set(0)
+        psmBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 50, height = buttonHeight)
+        psmBD.place(x = 415, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 54)
+        psmBT = OptionMenu(psmBD, self.dropDown2, *self.psms, command = self.reGen)
+        psmBT.config(bg = "white", font = ("SF Pro Display", 11), relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1, activebackground = "white")
+        psmBT.place(x = 0, y = 0)
+
+        paddingLabel = Label(app, text = "padding", font = ("SF Pro Display", 11))
+        paddingLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
+        paddingBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 50, height = buttonHeight)
+        paddingBD.place(x = 440, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
+        textBox = tk.Text(paddingBD,height = 2,width = 50)
+        textBox.place(x = 0, y = 0)
+
+
 
         # Grab a new table to work with
         self.fetchRandomTable(self.levels[2])
