@@ -23,7 +23,7 @@ buttonYOffset = 51
 app = Tk()
 
 class mainScreen:
-    board, cells, cursor, original, solved = ([] for i in range(5))
+    altered, board, cells, cursor, original, solved = ([] for i in range(6))
     levels = ["Beginner", "Intermediate                    ", "Advanced", "Expert", "Master"]
     selected = () # x, y
 
@@ -51,7 +51,7 @@ class mainScreen:
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
 
-        self.original = copy.deepcopy(self.board)
+        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
 
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
@@ -88,23 +88,11 @@ class mainScreen:
                 self.board[i].append(int(tempBoard[innerloopcount]))
                 innerloopcount += 1
 
-        self.original = copy.deepcopy(self.board)
+        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
 
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
             self.solutionBT.config(text = " Show solution ")
-
-
-    # Grabs new board and updates 9x9 grid
-    def reGen(self, level):
-        self.dropDown.set(" Random Generation")
-        self.fetchRandomTable(level)
-        for x in range(9):
-                for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
-                    photo = ImageTk.PhotoImage(newImage)
-                    self.cells[x][y].config(image = photo)
-                    self.cells[x][y].image = photo
 
 
     # Event handler for key press (1 - 9)
@@ -134,8 +122,8 @@ class mainScreen:
 
             x = self.selected[0]
             y = self.selected[1]
-            self.board[x][y] = int(note)
-            newImage = selectImage(x, y, self.board[x][y])
+            self.altered[x][y] = int(note)
+            newImage = selectImage(x, y, self.altered[x][y])
             photo = ImageTk.PhotoImage(newImage)
             self.cells[x][y].config(image = photo)
             self.cells[x][y].image = photo
@@ -157,6 +145,37 @@ class mainScreen:
             self.selected = (xth, yth)
         elif (153 < x and x < 198 and 27 < y and y < 43):
             webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+
+
+    # Grabs new board and updates 9x9 grid
+    def reGen(self, level):
+        self.dropDown.set(" Random Generation")
+        self.fetchRandomTable(level)
+        for x in range(9):
+                for y in range(9):
+                    newImage = selectImage(x, y, self.board[x][y])
+                    photo = ImageTk.PhotoImage(newImage)
+                    self.cells[x][y].config(image = photo)
+                    self.cells[x][y].image = photo
+
+
+    # Grabs new board and updates 9x9 grid
+    def resetBoard(self):
+        prompt = messagebox.askyesno("Confirmation", "Would you like to reset the board?")
+        if not prompt:
+            return
+
+        self.board = copy.deepcopy(self.original)
+        for x in range(9):
+                for y in range(9):
+                    newImage = selectImage(x, y, self.board[x][y])
+                    photo = ImageTk.PhotoImage(newImage)
+                    self.cells[x][y].config(image = photo)
+                    self.cells[x][y].image = photo
+
+        if (self.solutionBT.cget('text') == " Hide solution "):
+            self.solutionBD.config(width = 105)
+            self.solutionBT.config(text = " Show solution ")
 
 
     # Updates the current board with solution or hides it
@@ -238,7 +257,7 @@ class mainScreen:
         
         resetBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
         resetBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
-        resetBT = Button(resetBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        resetBT = Button(resetBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.resetBoard)
         resetBT.place(x = 0, y = 0)
 
         # Miscellaneous
