@@ -129,6 +129,16 @@ class mainScreen:
                 playsound("assets/audio/celB5.wav", block = False)
             elif note == "9":
                 playsound("assets/audio/celC6.wav", block = False)
+            elif note == "0":
+                playsound("assets/audio/celC4.wav", block = False)
+
+            x = self.selected[0]
+            y = self.selected[1]
+            self.board[x][y] = int(note)
+            newImage = selectImage(x, y, self.board[x][y])
+            photo = ImageTk.PhotoImage(newImage)
+            self.cells[x][y].config(image = photo)
+            self.cells[x][y].image = photo
 
 
     # Event handler for mouseDown; opens github page or replaces selected tuple value
@@ -144,7 +154,7 @@ class mainScreen:
             self.cursor[1].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset - 1 + yth * 40)
             self.cursor[2].place(x = gridXOffset - 1 + xth * 40, y = gridYOffset + 37 + yth * 40)
             self.cursor[3].place(x = gridXOffset + 37 + xth * 40, y = gridYOffset - 1 + yth * 40)
-            self.selected = (x, y)
+            self.selected = (xth, yth)
         elif (153 < x and x < 198 and 27 < y and y < 43):
             webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
 
@@ -240,7 +250,7 @@ class mainScreen:
 
         # Grab a new table to work with
         self.fetchRandomTable(self.levels[2])
-        
+
         # Draw 9x9 grid
         for x in range(9):
             self.cells.append([])
@@ -264,7 +274,7 @@ class mainScreen:
 
         # Bind event handlers
         app.bind("<Button-1>", self.mouseDown)
-        for i in range(1, 10):
+        for i in range(0, 10):
             app.bind(i, self.keyPress)
 
 def main():
