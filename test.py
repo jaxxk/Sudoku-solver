@@ -128,7 +128,8 @@ def validate(megalist, potent_number, x, y): #, index_num):
     col_check = potent_number
     for p in range(9):
         if col_check == megalist[p][y]:
-	            #print(potent_number)
+	        #print(potent_number)
+            # print(potent_number)
             return False #as in there are duplicates
 
     #check grid
