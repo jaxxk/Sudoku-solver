@@ -193,7 +193,7 @@ class mainScreen:
             self.solutionBD.config(width = 98)
             self.solutionBT.config(text = " Hide solution ")
         else:
-            self.board = copy.deepcopy(self.original)
+            self.board = copy.deepcopy(self.altered)
             self.solutionBD.config(width = 105)
             self.solutionBT.config(text = " Show solution ")
 
@@ -282,7 +282,7 @@ class mainScreen:
         paddingLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
         paddingBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 50, height = buttonHeight)
         paddingBD.place(x = 440, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
-        textBox = Text(paddingBD,height = 2,width = 50)
+        textBox = Text(paddingBD, height = 2, width = 50, relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1)
         textBox.place(x = 0, y = 0)
 
 
