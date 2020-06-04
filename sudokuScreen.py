@@ -8,12 +8,13 @@ import sys
 
 class screenCap(QtWidgets.QWidget):
     img = None
+    root = None
 
     def __init__(self):
         super().__init__()
-        root = Tk()
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
+        self.root = Tk()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
         self.setGeometry(0, 0, screen_width, screen_height)
         self.setWindowTitle(' ')
         self.begin = QtCore.QPoint()
@@ -49,6 +50,7 @@ class screenCap(QtWidgets.QWidget):
         y2 = max(self.begin.y(), self.end.y())
 
         self.img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
+        #self.root.destroy()
         #self.img = cv2.cvtColor(np.array(self.img), cv2.COLOR_BGR2RGB)
 
 
