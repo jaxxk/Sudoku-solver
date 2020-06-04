@@ -33,7 +33,8 @@ app = Tk()
 
 class mainScreen:
     altered, board, cells, cursor, original, solved = ([] for i in range(6))
-    levels = ["Beginner", "Intermediate                    ", "Advanced", "Expert", "Master"]
+    levels = ["Beginner", "Intermediate                ", "Advanced", "Expert", "Master"]
+
     psms = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
     selected = () # x, y
 

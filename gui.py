@@ -1,9 +1,11 @@
 from tkinter import *
 import tkinter as tk
-from tkinter import ttk
+# from tkinter import ttk
+from tkinter.ttk import *
 # from tkinter import *
 import subprocess as sub
 from test import *
+from string import ascii_lowercase
 
 
 LARGEFONT = ("Verdana",12)
@@ -29,8 +31,6 @@ class MainScreen(tk.Tk):
 		frame = self.frames[cont]
 		frame.tkraise()
 
-
-
 class StartPage(tk.Frame):
 	def __init__(self,parent,controller):
 		tk.Frame.__init__(self,parent)
@@ -54,7 +54,6 @@ class RandomPage(tk.Frame):
 		self.returnButton = tk.Button(self, text="Main Meanu",command = lambda:controller.show_frame(StartPage))
 		self.returnButton.pack()
 		
-		self. dele = 0
 		p = sub.Popen('test',stdout=sub.PIPE,stderr=sub.PIPE)
 		self.output, errors = p.communicate()
 
@@ -64,7 +63,6 @@ class RandomPage(tk.Frame):
 		self.text.pack()
 		self.text.insert(END,self.output)
 	def delete(self):
-	 	self.dele = 1
 	 	self.text.pack_forget()
 	 	self.eraseButton.pack_forget()
 	
@@ -73,19 +71,15 @@ class ManulPage(tk.Frame):
 		tk.Frame.__init__(self,parent)
 		self.label = tk.Label(self,text="Manual Sudoku",font=LARGEFONT)
 		self.label.pack()
-		# self.grid()
-  #       self.create_widgets()
 
-	# def create_widgets(self):
- #        self.entries = {}
- #        self.tableheight = 9
- #        self.tablewidth = 9
- #        counter = 0
- #        for row in xrange(self.tableheight):
- #            for column in xrange(self.tablewidth):
- #                self.entries[counter] = Entry(self, width=5)
- #                self.entries[counter].grid(row=row, column=column)
- #                counter += 1
+		# self.tablayout = Notebook(container)
+		# self.tab = Frame(tablayout)
+		# self.label = Label(tab,text = "data")
+		# label.pack()
+		# tablayout.add(tab,text="Table1")
+		# tablayout.pack(fill="both")
+	
+
 
 
 app = MainScreen()
