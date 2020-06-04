@@ -3,22 +3,31 @@ from lxml import html
 from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
+from PIL import Image
 
 from sudokuAlgorithm import *
 from sudokuBoard import *
+from sudokuScreen import *
 
 import copy
 import math
+import pytesseract as tess
 import requests
 import webbrowser
 
-# Configurations
+tess.pytesseract.tesseract_cmd = r'assets\Tesseract-OCR\tesseract.exe'
+
+# UI Configurations
 gridXOffset = 15
 gridYOffset = 50
 buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
+
+# Image Processing Configurations
+psmSetting = 10
+paddingSetting = 3 # number of pixels to ignore from edges
 
 app = Tk()
 
@@ -32,9 +41,66 @@ class mainScreen:
     dropDown2 = StringVar(app)
     solutionBD, solutionBT = (None for i in range(2))
 
+
+    # Creates a new board using image capture
+    def captureBoard(self):
+        prompt = messagebox.askyesno("Confirmation", "Would you like to generate a new board?\nCurrernt board will be discarded.")
+        if not prompt:
+            return
+
+        loadingLabel = Label(app, text = "The image is processing..", font = ("SF Pro Display", 11), width = 44, height = 20)
+        loadingLabel.place(x = gridXOffset, y = gridYOffset)
+
+        messagebox.showinfo("Information", "Please capture the 9x9 Sudoku Grid from edge to edge.")
+
+        self.board.clear()
+        self.solved.clear()
+
+        cap = QtWidgets.QApplication(sys.argv)
+        window = screenCap()
+        window.show()
+        cap.aboutToQuit.connect(cap.deleteLater)
+        cap.exec()
+
+        img = window.getImg()
+        dimOfGrid = (img.width + img.height) // 2 # assume this as the size of 9x9 grid for now
+        padding = dimOfGrid // 100 + paddingSetting # number of pixels to ignore from edges
+
+        for x in range(9):
+            self.board.append([])
+            for y in range(9):
+                # calculate boundaries for each of the 81 squares
+                tleft = int(img.width * x / 9) + padding
+                tright = int(img.height * y / 9) + padding
+                bleft = int(img.width * (x + 1) / 9) - padding
+                bright = int(img.height * (y + 1) / 9) - padding
+
+                tempImg = img.crop((tleft, tright, bleft, bright))
+                tempNum = tess.image_to_string(tempImg, lang='eng', config='--psm {}'.format(psmSetting))
+                num = ''.join([i for i in tempNum if i.isdigit()]) # eliminate any non-digit characters from string
+                if not num:
+                    num = 0
+                self.board[x].append(num)
+
+        loadingLabel.destroy()
+
+        for x in range(9):
+                for y in range(9):
+                    newImage = selectImage(x, y, self.board[x][y])
+                    photo = ImageTk.PhotoImage(newImage)
+                    self.cells[x][y].config(image = photo)
+                    self.cells[x][y].image = photo
+
+        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
+
+        if (self.solutionBT.cget('text') == " Hide solution "):
+            self.solutionBD.config(width = 105)
+            self.solutionBT.config(text = " Show solution ")
+
+
     # Fetches a new random table of given difficulty and replaces board
     def emptyBoard(self):
-        prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?")
+        prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
         if not prompt:
             return
 
@@ -98,7 +164,7 @@ class mainScreen:
 
     # Event handler for key press (1 - 9)
     def keyPress(self, event):
-        if self.selected:
+        if self.selected: # because python doesn't have switch
             note = event.char
             if note == "1":
                 playsound("assets/audio/celC5.wav", block = False)
@@ -151,6 +217,11 @@ class mainScreen:
     # Grabs new board and updates 9x9 grid
     def reGen(self, level):
         self.dropDown.set(" Random Generation")
+
+        prompt = messagebox.askyesno("Confirmation", "Would you like to generate a new board?\nCurrernt board will be discarded.")
+        if not prompt:
+            return
+
         self.fetchRandomTable(level)
         for x in range(9):
                 for y in range(9):
@@ -162,7 +233,7 @@ class mainScreen:
 
     # Grabs new board and updates 9x9 grid
     def resetBoard(self):
-        prompt = messagebox.askyesno("Confirmation", "Would you like to reset the board?")
+        prompt = messagebox.askyesno("Confirmation", "Would you like to reset the board?\nAny changes to the board will be discarded.")
         if not prompt:
             return
 
@@ -241,7 +312,7 @@ class mainScreen:
         
         captureBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 106, height = buttonHeight)
         captureBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 2)
-        captureBT = Button(captureBD, text = " From Screen.. ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0)
+        captureBT = Button(captureBD, text = " From Screen.. ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.captureBoard)
         captureBT.place(x = 0, y = 0)
 
         # Manage current board
