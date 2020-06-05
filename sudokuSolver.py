@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
 from PIL import Image
-import os
+from test import *
 
 from sudokuAlgorithm import *
 from sudokuBoard import *
@@ -397,6 +397,6 @@ def main():
     app.mainloop()
 
 if __name__=="__main__": 
-    cmd = "SF-Pro-Display-Regular.otf"
-    os.system(cmd)
+    path = (r"assets\fonts\SF-Pro-Display-Regular.otf")
+    install_font(path)
     main()
