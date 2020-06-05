@@ -11,7 +11,6 @@ from sudokuScreen import *
 
 import copy
 import math
-# import os
 import pytesseract as tess
 import requests
 import webbrowser
@@ -402,6 +401,4 @@ def main():
     app.mainloop()
 
 if __name__=="__main__": 
-    # cmd = "SF-Pro-Display-Regular.otf"
-    # os.system(cmd)
     main()
