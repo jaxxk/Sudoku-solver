@@ -3,7 +3,7 @@ from lxml import html
 from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
-from PIL import Image
+from PIL import ImageTk
 
 from sudokuAlgorithm import *
 from sudokuBoard import *
@@ -12,6 +12,7 @@ from sudokuScreen import *
 import copy
 import math
 import pytesseract as tess
+import PIL.Image
 import requests
 import webbrowser
 
@@ -24,7 +25,7 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-buttonTempFix = "   "
+buttonTempFix = " "
 
 # Image Processing Configurations
 psmSetting = 10
@@ -88,7 +89,7 @@ class mainScreen:
 
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -116,7 +117,7 @@ class mainScreen:
 
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -167,6 +168,13 @@ class mainScreen:
     # Event handler for key press (1 - 9)
     def keyPress(self, event):
         if self.selected: # because python doesn't have switch
+            x = self.selected[0]
+            y = self.selected[1]
+
+            if self.original[x][y] != 0:
+                playsound("assets/audio/celC4.wav", block = False)
+                return
+
             note = event.char
             if note == "1":
                 playsound("assets/audio/celC5.wav", block = False)
@@ -189,10 +197,8 @@ class mainScreen:
             elif note == "0":
                 playsound("assets/audio/celC4.wav", block = False)
 
-            x = self.selected[0]
-            y = self.selected[1]
             self.altered[x][y] = int(note)
-            newImage = selectImage(x, y, self.altered[x][y])
+            newImage = self.selectImage(x, y, self.altered[x][y])
             photo = ImageTk.PhotoImage(newImage)
             self.cells[x][y].config(image = photo)
             self.cells[x][y].image = photo
@@ -227,7 +233,7 @@ class mainScreen:
         self.fetchRandomTable(level)
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -242,7 +248,7 @@ class mainScreen:
         self.board = copy.deepcopy(self.original)
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -250,6 +256,26 @@ class mainScreen:
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
             self.solutionBT.config(text = " Show solution ")
+    
+
+    # Returns the path of image to use for x and y values
+    def selectImage(self, x, y, value):
+        imagePath = "assets/images/"
+        colorVariant = ""
+        
+        if 2 < y and y < 6:
+            colorVariant = "e"
+            if 2 < x and x < 6:
+                colorVariant = "o"
+        else:
+            colorVariant = "o"
+            if 2 < x and x < 6:
+                colorVariant = "e"
+
+        if self.original[x][y] != 0:
+            colorVariant = colorVariant + "f"
+
+        return PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
 
 
     # Updates the current board with solution or hides it
@@ -272,7 +298,7 @@ class mainScreen:
 
         for x in range(9):
             for y in range(9):
-                newImage = selectImage(x, y, self.board[x][y])
+                newImage = self.selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(newImage)
                 self.cells[x][y].config(image = photo)
                 self.cells[x][y].image = photo
@@ -367,7 +393,7 @@ class mainScreen:
         for x in range(9):
             self.cells.append([])
             for y in range(9):
-                image = selectImage(x, y, self.board[x][y])
+                image = self.selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(image)
                 label = Label(image = photo)
                 label.image = photo
