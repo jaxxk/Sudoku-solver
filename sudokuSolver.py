@@ -24,6 +24,7 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
+buttonTempFix = "   "
 
 # Image Processing Configurations
 psmSetting = 10
@@ -308,12 +309,12 @@ class mainScreen:
         
         emptyBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 160, height = buttonHeight)
         emptyBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
-        emptyBT = Button(emptyBD, text = " Generate empty board ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.emptyBoard)
+        emptyBT = Button(emptyBD, text = buttonTempFix + "Generate empty board" + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.emptyBoard)
         emptyBT.place(x = 0, y = 0)
         
         captureBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 106, height = buttonHeight)
         captureBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 2)
-        captureBT = Button(captureBD, text = " From Screen.. ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.captureBoard)
+        captureBT = Button(captureBD, text = buttonTempFix + "From Screen.." + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.captureBoard)
         captureBT.place(x = 0, y = 0)
 
         # Manage current board
@@ -325,12 +326,12 @@ class mainScreen:
 
         self.solutionBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 105, height = buttonHeight)
         self.solutionBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 3 + buttonGap + 27)
-        self.solutionBT = Button(self.solutionBD, text = " Show solution ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.showSolution)
+        self.solutionBT = Button(self.solutionBD, text = buttonTempFix + "Show solution" + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.showSolution)
         self.solutionBT.place(x = 0, y = 0)
         
         resetBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 53, height = buttonHeight)
         resetBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 4 + buttonGap + 27)
-        resetBT = Button(resetBD, text = " Reset ", font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.resetBoard)
+        resetBT = Button(resetBD, text = buttonTempFix + "Reset" + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.resetBoard)
         resetBT.place(x = 0, y = 0)
 
         # Miscellaneous
