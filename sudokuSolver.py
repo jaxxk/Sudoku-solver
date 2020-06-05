@@ -44,6 +44,12 @@ class mainScreen:
     emptyBD, emptyBT, solutionBD, solutionBT = (None for i in range(4))
 
 
+    # tries to solve a given puzzle within n seconds
+    def attemptToFindSolution(self):
+        self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
+        replace_empty(self.board)
+
+
     # Creates a new board using image capture
     def captureBoard(self):
         prompt = messagebox.askyesno("Confirmation", "Would you like to generate a new board?\nCurrernt board will be discarded.")
@@ -102,30 +108,43 @@ class mainScreen:
 
     # Fetches a new random table of given difficulty and replaces board
     def emptyBoard(self):
-        prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
-        if not prompt:
-            return
+        if (self.emptyBT.cget('text') == " Generate empty board "):
+            prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
+            messagebox.showinfo("Information", "After manually inputting the numbers, press the same button again to check it is a valid Sudoku board.")
+            if not prompt:
+                return
 
-        self.board.clear()
-        self.solved.clear()
+            self.board.clear()
+            self.solved.clear()
 
-        for i in range(9):
-            self.board.append([])
-            for j in range(9):
-                self.board[i].append(0)
-        
-        for x in range(9):
-                for y in range(9):
-                    newImage = self.selectImageButForEmptyBoardSoItRendersImagesCorrectly(x, y, self.board[x][y])
-                    photo = ImageTk.PhotoImage(newImage)
-                    self.cells[x][y].config(image = photo)
-                    self.cells[x][y].image = photo
+            for i in range(9):
+                self.board.append([])
+                for j in range(9):
+                    self.board[i].append(0)
+            
+            for x in range(9):
+                    for y in range(9):
+                        newImage = self.selectImageButForEmptyBoardSoItRendersImagesCorrectly(x, y, self.board[x][y])
+                        photo = ImageTk.PhotoImage(newImage)
+                        self.cells[x][y].config(image = photo)
+                        self.cells[x][y].image = photo
 
-        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
+            self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
 
-        if (self.solutionBT.cget('text') == " Hide solution "):
-            self.solutionBD.config(width = 105)
-            self.solutionBT.config(text = " Show solution ")
+            if (self.solutionBT.cget('text') == " Hide solution "):
+                self.solutionBD.config(width = 105)
+                self.solutionBT.config(text = " Show solution ")
+
+            self.emptyBD.config(width = 157)
+            self.emptyBT.config(text = " Save and check board ")
+        else:
+            #messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
+            self.attemptToFindSolution()
+
+            self.solved = copy.deepcopy(self.board)
+
+            self.emptyBD.config(width = 160)
+            self.emptyBT.config(text = " Generate empty board ")
 
 
     # Fetches a new random table of given difficulty and replaces board
