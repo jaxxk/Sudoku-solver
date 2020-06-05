@@ -4,7 +4,10 @@ from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
 from PIL import Image
+<<<<<<< HEAD
 from test import *
+=======
+>>>>>>> refs/remotes/origin/master
 
 from sudokuAlgorithm import *
 from sudokuBoard import *
@@ -281,6 +284,11 @@ class mainScreen:
     # main
     def __init__(self, root):
         # Grab a font from path to use (needs replacement)
+        pathbuf = create_unicode_buffer(
+            "assets\\fonts\\SF-Pro-Display-Regular.otf")
+        AddFontResourceEx = windll.gdi32.AddFontResourceExA
+        AddFontResourceEx(byref(pathbuf), 0x10, 0)
+
         # Title and Github Button
         titleLabel = Label(app, text = "SudokuSolver", font = ("SF Pro Display", 17))
         titleLabel.place(x = 15, y = 15)
@@ -399,4 +407,5 @@ def main():
 if __name__=="__main__": 
     path = (r"assets\fonts\SF-Pro-Display-Regular.otf")
     install_font(path)
+
     main()
