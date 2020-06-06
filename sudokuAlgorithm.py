@@ -1,3 +1,4 @@
+import time
 def printgrid(megalist):
     for i in range (9):
         if i % 3 == 0 and i != 0:
@@ -25,18 +26,36 @@ def find_empty(megalist):
 			
 #set it a possible value
 
+def countdown():
+    start = 4
+    while start > 0:
+        start -= 1
+        time.sleep(1)
+        if start == 0:
+            return False
+        else:
+            return True
+
 def replace_empty(megalist):
-	loc = find_empty(megalist)
-	x, y = loc
-	if x == -1:
-		return True
-	for i in range(1,10):
-		if validate(megalist, i, x, y):
-			megalist[x][y] = i
-			if replace_empty(megalist):
-				return True
-			megalist[x][y] = 0
-	return False
+    #countdown right here
+    #if countdown == 0 and find_empty == true --> no solution found
+    state = countdown()
+    loc = find_empty(megalist)
+    if state == False and loc != (-1, -1):  # no solution; might change == to "is" if it doesnt work
+        return False
+
+    x, y = loc
+    if x == -1:
+        return True
+    for i in range(1,10):
+        if validate(megalist, i, x, y):
+            megalist[x][y] = i
+            if replace_empty(megalist):
+                return True
+            megalist[x][y] = 0
+
+
+    return False
 
 
 def valid(bo, num, pos):
@@ -87,6 +106,8 @@ def validate(megalist, potent_number, x, y): #, index_num):
             if grid_check == megalist[w][v]:
                 return False
     return True
+
+print(countdown())
 
 # replace_empty(megalist)
 # print("-------------------------------")

@@ -5,14 +5,16 @@ from tkinter import messagebox
 from playsound import playsound
 from PIL import Image
 # from test import *
+from PIL import ImageTk
 
 from sudokuAlgorithm import *
-from sudokuBoard import *
 from sudokuScreen import *
+from sudokuValidate import *
 
 import copy
 import math
 import pytesseract as tess
+import PIL.Image
 import requests
 import webbrowser
 
@@ -25,7 +27,7 @@ buttonGap = 12
 buttonHeight = 30
 buttonPadding = 4
 buttonYOffset = 51
-buttonTempFix = "   "
+buttonTempFix = " "
 
 # Image Processing Configurations
 psmSetting = 10
@@ -37,12 +39,17 @@ class mainScreen:
     altered, board, cells, cursor, original, solved = ([] for i in range(6))
     levels = ["Beginner", "Intermediate                ", "Advanced", "Expert", "Master"]
 
-    psms = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+    psms = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     selected = () # x, y
 
-    dropDown = StringVar(app)
-    dropDown2 = StringVar(app)
-    solutionBD, solutionBT = (None for i in range(2))
+    dropDown, dropDown2 = (StringVar(app) for i in range(2))
+    emptyBD, emptyBT, solutionBD, solutionBT = (None for i in range(4))
+
+
+    # tries to solve a given puzzle within n seconds
+    def attemptToFindSolution(self):
+        self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
+        replace_empty(self.board)
 
 
     # Creates a new board using image capture
@@ -89,7 +96,7 @@ class mainScreen:
 
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -103,30 +110,43 @@ class mainScreen:
 
     # Fetches a new random table of given difficulty and replaces board
     def emptyBoard(self):
-        prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
-        if not prompt:
-            return
+        if (self.emptyBT.cget('text') == " Generate empty board "):
+            prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
+            messagebox.showinfo("Information", "After manually inputting the numbers, press the same button again to check it is a valid Sudoku board.")
+            if not prompt:
+                return
 
-        self.board.clear()
-        self.solved.clear()
+            self.board.clear()
+            self.solved.clear()
 
-        for i in range(9):
-            self.board.append([])
-            for j in range(9):
-                self.board[i].append(0)
+            for i in range(9):
+                self.board.append([])
+                for j in range(9):
+                    self.board[i].append(0)
+            
+            for x in range(9):
+                    for y in range(9):
+                        newImage = self.selectImageButForEmptyBoardSoItRendersImagesCorrectly(x, y, self.board[x][y])
+                        photo = ImageTk.PhotoImage(newImage)
+                        self.cells[x][y].config(image = photo)
+                        self.cells[x][y].image = photo
 
-        for x in range(9):
-                for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
-                    photo = ImageTk.PhotoImage(newImage)
-                    self.cells[x][y].config(image = photo)
-                    self.cells[x][y].image = photo
+            self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
 
-        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
+            if (self.solutionBT.cget('text') == " Hide solution "):
+                self.solutionBD.config(width = 105)
+                self.solutionBT.config(text = " Show solution ")
 
-        if (self.solutionBT.cget('text') == " Hide solution "):
-            self.solutionBD.config(width = 105)
-            self.solutionBT.config(text = " Show solution ")
+            self.emptyBD.config(width = 157)
+            self.emptyBT.config(text = " Save and check board ")
+        else:
+            #messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
+            self.attemptToFindSolution()
+
+            self.solved = copy.deepcopy(self.board)
+
+            self.emptyBD.config(width = 160)
+            self.emptyBT.config(text = " Generate empty board ")
 
 
     # Fetches a new random table of given difficulty and replaces board
@@ -168,32 +188,39 @@ class mainScreen:
     # Event handler for key press (1 - 9)
     def keyPress(self, event):
         if self.selected: # because python doesn't have switch
-            note = event.char
-            if note == "1":
-                playsound("assets/audio/celC5.wav", block = False)
-            elif note == "2":
-                playsound("assets/audio/celD5.wav", block = False)
-            elif note == "3":
-                playsound("assets/audio/celE5.wav", block = False)
-            elif note == "4":
-                playsound("assets/audio/celF5.wav", block = False)
-            elif note == "5":
-                playsound("assets/audio/celFs5.wav", block = False)
-            elif note == "6":
-                playsound("assets/audio/celG5.wav", block = False)
-            elif note == "7":
-                playsound("assets/audio/celA5.wav", block = False)
-            elif note == "8":
-                playsound("assets/audio/celB5.wav", block = False)
-            elif note == "9":
-                playsound("assets/audio/celC6.wav", block = False)
-            elif note == "0":
-                playsound("assets/audio/celC4.wav", block = False)
-
             x = self.selected[0]
             y = self.selected[1]
+            path = "assets/audio/"
+            if self.original[x][y] != 0:
+                playsound(path + "celC4.wav", block = False)
+                return
+
+            note = event.char
+            if note == "1":
+                path = path + "celC5"
+            elif note == "2":
+                path = path + "celD5"
+            elif note == "3":
+                path = path + "celE5"
+            elif note == "4":
+                path = path + "celF5"
+            elif note == "5":
+                path = path + "celFs5"
+            elif note == "6":
+                path = path + "celG5"
+            elif note == "7":
+                path = path + "celA5"
+            elif note == "8":
+                path = path + "celB5"
+            elif note == "9":
+                path = path + "celC6"
+            elif note == "0":
+                path = path + "celC4"
+
+            playsound(path + ".wav", block = False)
+
             self.altered[x][y] = int(note)
-            newImage = selectImage(x, y, self.altered[x][y])
+            newImage = self.selectImage(x, y, self.altered[x][y])
             photo = ImageTk.PhotoImage(newImage)
             self.cells[x][y].config(image = photo)
             self.cells[x][y].image = photo
@@ -228,7 +255,7 @@ class mainScreen:
         self.fetchRandomTable(level)
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -243,7 +270,7 @@ class mainScreen:
         self.board = copy.deepcopy(self.original)
         for x in range(9):
                 for y in range(9):
-                    newImage = selectImage(x, y, self.board[x][y])
+                    newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
@@ -251,6 +278,44 @@ class mainScreen:
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
             self.solutionBT.config(text = " Show solution ")
+    
+
+    # Returns the path of image to use for x and y values
+    def selectImage(self, x, y, value):
+        imagePath = "assets/images/"
+        colorVariant = ""
+        
+        if 2 < y and y < 6:
+            colorVariant = "e"
+            if 2 < x and x < 6:
+                colorVariant = "o"
+        else:
+            colorVariant = "o"
+            if 2 < x and x < 6:
+                colorVariant = "e"
+
+        if self.original[x][y] != 0:
+            colorVariant = colorVariant + "f"
+
+        return PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
+
+
+    # Because I'm too lazy to replace selectImage with one that has a new parameter
+    def selectImageButForEmptyBoardSoItRendersImagesCorrectly(self, x, y, value):
+        # TODO: replace this function and replace empty button with one that toggles into 'save changes'
+        imagePath = "assets/images/"
+        colorVariant = ""
+        
+        if 2 < y and y < 6:
+            colorVariant = "e"
+            if 2 < x and x < 6:
+                colorVariant = "o"
+        else:
+            colorVariant = "o"
+            if 2 < x and x < 6:
+                colorVariant = "e"
+
+        return PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
 
 
     # Updates the current board with solution or hides it
@@ -273,7 +338,7 @@ class mainScreen:
 
         for x in range(9):
             for y in range(9):
-                newImage = selectImage(x, y, self.board[x][y])
+                newImage = self.selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(newImage)
                 self.cells[x][y].config(image = photo)
                 self.cells[x][y].image = photo
@@ -308,10 +373,10 @@ class mainScreen:
         generateBT.config(bg = "white", font = ("SF Pro Display", 11), relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1, activebackground = "white")
         generateBT.place(x = 0, y = 0)
         
-        emptyBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 160, height = buttonHeight)
-        emptyBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
-        emptyBT = Button(emptyBD, text = buttonTempFix + "Generate empty board" + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.emptyBoard)
-        emptyBT.place(x = 0, y = 0)
+        self.emptyBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 160, height = buttonHeight)
+        self.emptyBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding))
+        self.emptyBT = Button(self.emptyBD, text = buttonTempFix + "Generate empty board" + buttonTempFix, font = ("SF Pro Display", 11), bg = "white", relief = "solid", borderwidth = 0, command = self.emptyBoard)
+        self.emptyBT.place(x = 0, y = 0)
         
         captureBD = Frame(app, bd=0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 106, height = buttonHeight)
         captureBD.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 2)
@@ -368,7 +433,7 @@ class mainScreen:
         for x in range(9):
             self.cells.append([])
             for y in range(9):
-                image = selectImage(x, y, self.board[x][y])
+                image = self.selectImage(x, y, self.board[x][y])
                 photo = ImageTk.PhotoImage(image)
                 label = Label(image = photo)
                 label.image = photo
