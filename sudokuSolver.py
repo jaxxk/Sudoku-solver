@@ -4,8 +4,7 @@ from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
 from PIL import Image
-from test import *
->>>>>>> refs/remotes/origin/master
+# from test import *
 
 from sudokuAlgorithm import *
 from sudokuBoard import *
