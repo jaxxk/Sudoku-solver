@@ -3,8 +3,6 @@ from lxml import html
 from tkinter import *
 from tkinter import messagebox
 from playsound import playsound
-from PIL import Image
-# from test import *
 from PIL import ImageTk
 
 from sudokuAlgorithm import *
@@ -14,7 +12,7 @@ from sudokuValidate import *
 import copy
 import math
 import pytesseract as tess
-import PIL.Image
+import PIL.Image, PIL.ImageEnhance
 import requests
 import webbrowser
 
@@ -36,7 +34,7 @@ paddingSetting = 3 # number of pixels to ignore from edges
 app = Tk()
 
 class mainScreen:
-    altered, board, cells, cursor, original, solved = ([] for i in range(6))
+    altered, board, cells, completed, conflicted, cursor, original, solved = ([] for i in range(8))
     levels = ["Beginner", "Intermediate                ", "Advanced", "Expert", "Master"]
 
     psms = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -106,6 +104,48 @@ class mainScreen:
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
             self.solutionBT.config(text = " Show solution ")
+
+
+    def checkForCompletions(self, attemptNumber, x, y):
+        print(1)
+
+
+    def checkForConflicts(self, attemptNumber, x, y):
+        conflictsFound = False;
+
+        # check specified row that is determined thru value x
+        row_check = attemptNumber
+        for g in range(9):
+            if y == g:
+                continue
+            if row_check == self.altered[x][g]:
+                self.conflicted[x][g] = 1
+                conflictsFound = True
+
+        # check specified col that is determined thru value y
+        col_check = attemptNumber
+        for p in range(9):
+            if x == p:
+                continue
+            if col_check == self.altered[p][y]:
+                # adding tuple of column duplicate (p,y)
+                self.conflicted[p][y] = 1
+                conflictsFound = True
+
+        # check grid
+        modX = x // 3
+        modY = y // 3
+        grid_check = attemptNumber
+        for w in range(modX * 3, modX * 3 + 3):
+            for v in range(modY * 3, modY * 3 + 3):
+                if w == x and y == v:
+                    continue
+                if grid_check == self.altered[w][v]:
+                    # adding tuple of grid duplicate (w,v)
+                    self.conflicted[w][v] = 1
+                    conflictsFound = True
+                    
+        return conflictsFound
 
 
     # Fetches a new random table of given difficulty and replaces board
@@ -191,39 +231,54 @@ class mainScreen:
             x = self.selected[0]
             y = self.selected[1]
             path = "assets/audio/"
+
             if self.original[x][y] != 0:
                 playsound(path + "celC4.wav", block = False)
                 return
 
-            note = event.char
-            if note == "1":
+            note = int(event.char)
+            
+            if note == 1:
                 path = path + "celC5"
-            elif note == "2":
+            elif note == 2:
                 path = path + "celD5"
-            elif note == "3":
+            elif note == 3:
                 path = path + "celE5"
-            elif note == "4":
+            elif note == 4:
                 path = path + "celF5"
-            elif note == "5":
+            elif note == 5:
                 path = path + "celFs5"
-            elif note == "6":
+            elif note == 6:
                 path = path + "celG5"
-            elif note == "7":
+            elif note == 7:
                 path = path + "celA5"
-            elif note == "8":
+            elif note == 8:
                 path = path + "celB5"
-            elif note == "9":
+            elif note == 9:
                 path = path + "celC6"
-            elif note == "0":
+            elif note == 0:
                 path = path + "celC4"
+                self.altered[x][y] = 0
+                playsound(path + ".wav", block = False)
+                photo = ImageTk.PhotoImage(self.selectImage(x, y, 0))
+                self.cells[x][y].config(image = photo)
+                self.cells[x][y].image = photo
+                return
 
-            playsound(path + ".wav", block = False)
+            if note == self.altered[x][y]:
+                playsound(path + ".wav", block = False)
+                return
 
-            self.altered[x][y] = int(note)
-            newImage = self.selectImage(x, y, self.altered[x][y])
-            photo = ImageTk.PhotoImage(newImage)
-            self.cells[x][y].config(image = photo)
-            self.cells[x][y].image = photo
+            self.altered[x][y] = note
+
+            if self.checkForConflicts(note, x, y):
+                playsound(path + "_conf.wav", block = False)
+            else:
+                playsound(path + ".wav", block = False)
+                newImage = self.selectImage(x, y, self.altered[x][y])
+                photo = ImageTk.PhotoImage(newImage)
+                self.cells[x][y].config(image = photo)
+                self.cells[x][y].image = photo
 
 
     # Event handler for mouseDown; opens github page or replaces selected tuple value
@@ -284,6 +339,7 @@ class mainScreen:
     def selectImage(self, x, y, value):
         imagePath = "assets/images/"
         colorVariant = ""
+        saturateMultiplier = 1
         
         if 2 < y and y < 6:
             colorVariant = "e"
@@ -297,7 +353,11 @@ class mainScreen:
         if self.original[x][y] != 0:
             colorVariant = colorVariant + "f"
 
-        return PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
+        if self.completed[x][y] == 0:
+            saturateMultiplier = .25
+
+        img = PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
+        return PIL.ImageEnhance.Color(img).enhance(saturateMultiplier)
 
 
     # Because I'm too lazy to replace selectImage with one that has a new parameter
@@ -424,10 +484,16 @@ class mainScreen:
         textBox = Text(paddingBD, height = 2, width = 50, relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1)
         textBox.place(x = 0, y = 0)
 
-
-
         # Grab a new table to work with
         self.fetchRandomTable(self.levels[2])
+
+        # Fill completed table with 0s (to mark cells as incomplete)
+        for i in range(9):
+                self.completed.append([])
+                self.conflicted.append([])
+                for j in range(9):
+                    self.completed[i].append(0)
+                    self.conflicted[i].append(0)
 
         # Draw 9x9 grid
         for x in range(9):
@@ -468,6 +534,4 @@ def main():
     app.mainloop()
 
 if __name__=="__main__": 
-    # path = (r"assets\fonts\SF-Pro-Display-Regular.otf")
-    # install_font(path)
     main()
