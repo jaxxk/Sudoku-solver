@@ -14,6 +14,7 @@ import math
 import pytesseract as tess
 import PIL.Image, PIL.ImageEnhance
 import requests
+import time
 import webbrowser
 
 tess.pytesseract.tesseract_cmd = r'assets\Tesseract-OCR\tesseract.exe'
@@ -42,6 +43,11 @@ class mainScreen:
 
     dropDown, dropDown2 = (StringVar(app) for i in range(2))
     emptyBD, emptyBT, solutionBD, solutionBT = (None for i in range(4))
+
+
+    # Completion animations
+    def animate(self):
+        print("")
 
 
     # tries to solve a given puzzle within n seconds
@@ -106,45 +112,105 @@ class mainScreen:
             self.solutionBT.config(text = " Show solution ")
 
 
-    def checkForCompletions(self, attemptNumber, x, y):
-        print(1)
+    def checkForCompletions(self, x, y):
+        row, col, grid = (True for i in range(3))
+
+        for i in range(9):
+            if self.altered[x][i] == 0 or self.completed[x][i] == 1 or self.conflicted[x][i] == 1:
+                row = False
+            if self.altered[i][y] == 0 or self.completed[i][y] == 1 or self.conflicted[i][y] == 1:
+                col = False
+        modX = x // 3
+        modY = y // 3
+        for w in range(modX * 3, modX * 3 + 3):
+            for v in range(modY * 3, modY * 3 + 3):
+                if self.altered[w][v] == 0 or self.completed[w][v] == 1 or self.conflicted[w][v] == 1:
+                    grid = False
+
+        row, col, grid = (True for i in range(3))
+        if row or col or grid:
+            print(str(row) + " " + str(col) + "" + str(grid))
+            # Play the animation
+            for i in range(9):
+                if row:
+                    for r in range(9):
+                        if self.altered[x][r] == i:
+                            self.completed[x][r] = 1
+                            self.updateImage(x, r)
+                            break
+                if col:
+                    for c in range(9):
+                        if self.altered[c][y] == i:
+                            self.completed[c][y] = 1
+                            self.updateImage(c, y)
+                            break
+                if grid:
+                    modX = x // 3
+                    modY = y // 3
+                    for w in range(modX * 3, modX * 3 + 3):
+                        for v in range(modY * 3, modY * 3 + 3):
+                            if self.altered[w][v] == i:
+                                self.completed[w][v] = 1
+                                self.updateImage(w, v)
+                                break
+                # time.sleep(0.2)
 
 
-    def checkForConflicts(self, attemptNumber, x, y):
-        conflictsFound = False;
+    def checkForConflicts(self, x, y):
+        self.conflicted[x][y] = 0 # Mark itself as non-conflicted
+        conflictsFound = False; # Value to return
 
         # check specified row that is determined thru value x
-        row_check = attemptNumber
+        row_check = self.altered[x][y]
         for g in range(9):
             if y == g:
                 continue
+            if self.conflicted[x][g] == 1:
+                self.altered[x][y] = -1
+                self.checkForConflicts(x, g)
+                self.altered[x][y] = row_check
             if row_check == self.altered[x][g]:
                 self.conflicted[x][g] = 1
+                self.updateImage(x, g)
                 conflictsFound = True
 
         # check specified col that is determined thru value y
-        col_check = attemptNumber
+        col_check = row_check
         for p in range(9):
             if x == p:
                 continue
+            if self.conflicted[p][y] == 1:
+                self.altered[x][y] = -1
+                self.checkForConflicts(p, y)
+                self.altered[x][y] = row_check
             if col_check == self.altered[p][y]:
                 # adding tuple of column duplicate (p,y)
                 self.conflicted[p][y] = 1
+                self.updateImage(p, y)
                 conflictsFound = True
 
         # check grid
         modX = x // 3
         modY = y // 3
-        grid_check = attemptNumber
+        grid_check = row_check
         for w in range(modX * 3, modX * 3 + 3):
             for v in range(modY * 3, modY * 3 + 3):
                 if w == x and y == v:
                     continue
+                if self.conflicted[w][v] == 1:
+                    self.altered[x][y] = -1
+                    self.checkForConflicts(w, v)
+                    self.altered[x][y] = row_check
                 if grid_check == self.altered[w][v]:
                     # adding tuple of grid duplicate (w,v)
                     self.conflicted[w][v] = 1
+                    self.updateImage(w, v)
                     conflictsFound = True
-                    
+        
+        if conflictsFound:
+            self.conflicted[x][y] = 1
+
+        self.updateImage(x, y)
         return conflictsFound
 
 
@@ -265,20 +331,18 @@ class mainScreen:
                 self.cells[x][y].image = photo
                 return
 
-            if note == self.altered[x][y]:
+            if note == self.altered[x][y] and self.conflicted[x][y] == 0:
                 playsound(path + ".wav", block = False)
                 return
 
             self.altered[x][y] = note
 
-            if self.checkForConflicts(note, x, y):
+            if self.checkForConflicts(x, y):
                 playsound(path + "_conf.wav", block = False)
             else:
                 playsound(path + ".wav", block = False)
-                newImage = self.selectImage(x, y, self.altered[x][y])
-                photo = ImageTk.PhotoImage(newImage)
-                self.cells[x][y].config(image = photo)
-                self.cells[x][y].image = photo
+                self.checkForCompletions(x, y)
+                self.updateImage(x, y)
 
 
     # Event handler for mouseDown; opens github page or replaces selected tuple value
@@ -350,11 +414,14 @@ class mainScreen:
             if 2 < x and x < 6:
                 colorVariant = "e"
 
+        if self.conflicted[x][y] != 0:
+            colorVariant += "c"
+
         if self.original[x][y] != 0:
-            colorVariant = colorVariant + "f"
+            colorVariant += "f"
 
         if self.completed[x][y] == 0:
-            saturateMultiplier = .25
+            saturateMultiplier = .2
 
         img = PIL.Image.open(imagePath + str(colorVariant) + str(value) + ".jpg")
         return PIL.ImageEnhance.Color(img).enhance(saturateMultiplier)
@@ -398,11 +465,13 @@ class mainScreen:
 
         for x in range(9):
             for y in range(9):
-                newImage = self.selectImage(x, y, self.board[x][y])
-                photo = ImageTk.PhotoImage(newImage)
-                self.cells[x][y].config(image = photo)
-                self.cells[x][y].image = photo
+                self.updateImage(x, y)
 
+    def updateImage(self, x, y):
+        newImage = self.selectImage(x, y, self.altered[x][y])
+        photo = ImageTk.PhotoImage(newImage)
+        self.cells[x][y].config(image = photo)
+        self.cells[x][y].image = photo
 
     # main
     def __init__(self, root):

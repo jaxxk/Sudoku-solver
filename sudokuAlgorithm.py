@@ -107,8 +107,6 @@ def validate(megalist, potent_number, x, y): #, index_num):
                 return False
     return True
 
-print(countdown())
-
 # replace_empty(megalist)
 # print("-------------------------------")
 # print("Solved board\n")
