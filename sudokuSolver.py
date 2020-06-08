@@ -115,7 +115,7 @@ class mainScreen:
             self.solutionBT.config(text = " Show solution ")
 
 
-    def checkForCompletions(self, x, y):
+    def checkForCompletions(self, x, y, noSound):
         row, col, grid = (True for i in range(3))
         comp = True
 
@@ -139,13 +139,15 @@ class mainScreen:
                         if int(self.altered[x][r]) == i:
                             self.completed[x][r] = 1
                             self.updateImage(x, r)
-                            playsound(self.selectSound(i, "dul"), block = False)
+                            if not noSound:
+                                playsound(self.selectSound(i, "dul"), block = False)
                 if col:
                     for c in range(9):
                         if int(self.altered[c][y]) == i:
                             self.completed[c][y] = 1
                             self.updateImage(c, y)
-                            playsound(self.selectSound(i, "glo"), block = False)
+                            if not noSound:
+                                playsound(self.selectSound(i, "glo"), block = False)
                 if grid:
                     modX = x // 3
                     modY = y // 3
@@ -154,7 +156,8 @@ class mainScreen:
                             if int(self.altered[w][v]) == i:
                                 self.completed[w][v] = 1
                                 self.updateImage(w, v)
-                                playsound(self.selectSound(i, "cel"), block = False)
+                                if not noSound:
+                                    playsound(self.selectSound(i, "cel"), block = False)
                 if i >= 9:
                     for a in range(9):
                         for b in range(9):
@@ -162,7 +165,8 @@ class mainScreen:
                                 comp = False
                                 break
                     if comp:
-                        playsound("assets/audio/complete.wav", block = False)
+                        if not noSound:
+                            playsound("assets/audio/complete.wav", block = False)
                 app.update_idletasks()
                 time.sleep(0.06)
 
@@ -326,7 +330,7 @@ class mainScreen:
                 playsound(self.selectSound(note, "con"), block = False)
             else:
                 playsound(self.selectSound(note, "cel"), block = False)
-                self.checkForCompletions(x, y)
+                self.checkForCompletions(x, y, False)
                 self.updateImage(x, y)
 
 
