@@ -24,16 +24,17 @@ def find_empty(megalist):
 	return (-1, -1)
 			
 #set it a possible value
-
-def replace_empty(megalist):
+def replace_empty(megalist, loop_check):
+	loop_check += 1
+	print(loop_check)
 	loc = find_empty(megalist)
 	x, y = loc
-	if x == -1:
+	if x == -1 | loop_check > 1000:
 		return True
 	for i in range(1,10):
 		if validate(megalist, i, x, y):
 			megalist[x][y] = i
-			if replace_empty(megalist):
+			if replace_empty(megalist, loop_check):
 				return True
 			megalist[x][y] = 0
 	return False
