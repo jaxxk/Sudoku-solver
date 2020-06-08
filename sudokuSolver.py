@@ -98,14 +98,14 @@ class mainScreen:
 
         loadingLabel.destroy()
 
+        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
+
         for x in range(9):
                 for y in range(9):
                     newImage = self.selectImage(x, y, self.board[x][y])
                     photo = ImageTk.PhotoImage(newImage)
                     self.cells[x][y].config(image = photo)
                     self.cells[x][y].image = photo
-
-        self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
 
         if (self.solutionBT.cget('text') == " Hide solution "):
             self.solutionBD.config(width = 105)
@@ -116,74 +116,75 @@ class mainScreen:
         row, col, grid = (True for i in range(3))
 
         for i in range(9):
-            if self.altered[x][i] == 0 or self.completed[x][i] == 1 or self.conflicted[x][i] == 1:
+            if self.altered[x][i] == 0 or self.conflicted[x][i] == 1:
                 row = False
-            if self.altered[i][y] == 0 or self.completed[i][y] == 1 or self.conflicted[i][y] == 1:
+            if self.altered[i][y] == 0 or self.conflicted[i][y] == 1:
                 col = False
         modX = x // 3
         modY = y // 3
         for w in range(modX * 3, modX * 3 + 3):
             for v in range(modY * 3, modY * 3 + 3):
-                if self.altered[w][v] == 0 or self.completed[w][v] == 1 or self.conflicted[w][v] == 1:
+                if self.altered[w][v] == 0 or self.conflicted[w][v] == 1:
                     grid = False
 
-        row, col, grid = (True for i in range(3))
         if row or col or grid:
-            print(str(row) + " " + str(col) + "" + str(grid))
             # Play the animation
-            for i in range(9):
+            for i in range(1, 10):
                 if row:
                     for r in range(9):
-                        if self.altered[x][r] == i:
+                        if int(self.altered[x][r]) == i:
                             self.completed[x][r] = 1
                             self.updateImage(x, r)
-                            break
+                            playsound(self.selectSound(i, "dul"), block = False)
                 if col:
                     for c in range(9):
-                        if self.altered[c][y] == i:
+                        if int(self.altered[c][y]) == i:
                             self.completed[c][y] = 1
                             self.updateImage(c, y)
-                            break
+                            playsound(self.selectSound(i, "glo"), block = False)
                 if grid:
                     modX = x // 3
                     modY = y // 3
                     for w in range(modX * 3, modX * 3 + 3):
                         for v in range(modY * 3, modY * 3 + 3):
-                            if self.altered[w][v] == i:
+                            if int(self.altered[w][v]) == i:
                                 self.completed[w][v] = 1
                                 self.updateImage(w, v)
-                                break
-                # time.sleep(0.2)
+                                playsound(self.selectSound(i, "cel"), block = False)
+                app.update_idletasks()
+                time.sleep(0.06)
 
 
     def checkForConflicts(self, x, y):
         self.conflicted[x][y] = 0 # Mark itself as non-conflicted
         conflictsFound = False; # Value to return
 
+        ogValue, checkAgainst = (int(self.altered[x][y]) for i in range(2))
+        if checkAgainst == 0:
+            checkAgainst = -1
+
         # check specified row that is determined thru value x
-        row_check = self.altered[x][y]
         for g in range(9):
             if y == g:
                 continue
             if self.conflicted[x][g] == 1:
                 self.altered[x][y] = -1
                 self.checkForConflicts(x, g)
-                self.altered[x][y] = row_check
-            if row_check == self.altered[x][g]:
+                self.altered[x][y] = ogValue
+            if checkAgainst == int(self.altered[x][g]):
                 self.conflicted[x][g] = 1
                 self.updateImage(x, g)
                 conflictsFound = True
 
         # check specified col that is determined thru value y
-        col_check = row_check
         for p in range(9):
             if x == p:
                 continue
             if self.conflicted[p][y] == 1:
                 self.altered[x][y] = -1
                 self.checkForConflicts(p, y)
-                self.altered[x][y] = row_check
-            if col_check == self.altered[p][y]:
+                self.altered[x][y] = ogValue
+            if checkAgainst == int(self.altered[p][y]):
                 # adding tuple of column duplicate (p,y)
                 self.conflicted[p][y] = 1
                 self.updateImage(p, y)
@@ -192,7 +193,6 @@ class mainScreen:
         # check grid
         modX = x // 3
         modY = y // 3
-        grid_check = row_check
         for w in range(modX * 3, modX * 3 + 3):
             for v in range(modY * 3, modY * 3 + 3):
                 if w == x and y == v:
@@ -200,8 +200,8 @@ class mainScreen:
                 if self.conflicted[w][v] == 1:
                     self.altered[x][y] = -1
                     self.checkForConflicts(w, v)
-                    self.altered[x][y] = row_check
-                if grid_check == self.altered[w][v]:
+                    self.altered[x][y] = ogValue
+                if checkAgainst == int(self.altered[w][v]):
                     # adding tuple of grid duplicate (w,v)
                     self.conflicted[w][v] = 1
                     self.updateImage(w, v)
@@ -218,10 +218,10 @@ class mainScreen:
     def emptyBoard(self):
         if (self.emptyBT.cget('text') == " Generate empty board "):
             prompt = messagebox.askyesno("Confirmation", "Would you like to empty the board?\nCurrernt board will be discarded.")
-            messagebox.showinfo("Information", "After manually inputting the numbers, press the same button again to check it is a valid Sudoku board.")
             if not prompt:
                 return
-
+            messagebox.showinfo("Information", "After manually inputting the numbers, press the same button again to check it is a valid Sudoku board.")
+            
             self.board.clear()
             self.solved.clear()
 
@@ -296,51 +296,23 @@ class mainScreen:
         if self.selected: # because python doesn't have switch
             x = self.selected[0]
             y = self.selected[1]
-            path = "assets/audio/"
 
             if self.original[x][y] != 0:
-                playsound(path + "celC4.wav", block = False)
+                playsound(self.selectSound(0, "cel"), block = False)
                 return
 
             note = int(event.char)
-            
-            if note == 1:
-                path = path + "celC5"
-            elif note == 2:
-                path = path + "celD5"
-            elif note == 3:
-                path = path + "celE5"
-            elif note == 4:
-                path = path + "celF5"
-            elif note == 5:
-                path = path + "celFs5"
-            elif note == 6:
-                path = path + "celG5"
-            elif note == 7:
-                path = path + "celA5"
-            elif note == 8:
-                path = path + "celB5"
-            elif note == 9:
-                path = path + "celC6"
-            elif note == 0:
-                path = path + "celC4"
-                self.altered[x][y] = 0
-                playsound(path + ".wav", block = False)
-                photo = ImageTk.PhotoImage(self.selectImage(x, y, 0))
-                self.cells[x][y].config(image = photo)
-                self.cells[x][y].image = photo
-                return
 
             if note == self.altered[x][y] and self.conflicted[x][y] == 0:
-                playsound(path + ".wav", block = False)
+                playsound(self.selectSound(note, "cel"), block = False)
                 return
 
             self.altered[x][y] = note
 
             if self.checkForConflicts(x, y):
-                playsound(path + "_conf.wav", block = False)
+                playsound(self.selectSound(note, "con"), block = False)
             else:
-                playsound(path + ".wav", block = False)
+                playsound(self.selectSound(note, "cel"), block = False)
                 self.checkForCompletions(x, y)
                 self.updateImage(x, y)
 
@@ -427,6 +399,11 @@ class mainScreen:
         return PIL.ImageEnhance.Color(img).enhance(saturateMultiplier)
 
 
+    def selectSound(self, inp, inst):
+        path = "assets/audio/"
+        path += str(inst) + str(inp)
+        return path + ".wav"
+
     # Because I'm too lazy to replace selectImage with one that has a new parameter
     def selectImageButForEmptyBoardSoItRendersImagesCorrectly(self, x, y, value):
         # TODO: replace this function and replace empty button with one that toggles into 'save changes'
@@ -465,7 +442,10 @@ class mainScreen:
 
         for x in range(9):
             for y in range(9):
-                self.updateImage(x, y)
+                newImage = self.selectImage(x, y, self.board[x][y])
+                photo = ImageTk.PhotoImage(newImage)
+                self.cells[x][y].config(image = photo)
+                self.cells[x][y].image = photo
 
     def updateImage(self, x, y):
         newImage = self.selectImage(x, y, self.altered[x][y])
