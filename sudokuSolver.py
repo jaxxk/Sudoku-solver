@@ -333,6 +333,7 @@ class mainScreen:
             self.selected = (xth, yth)
         elif (153 < x and x < 198 and 27 < y and y < 43):
             webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+        
 
 
     # Grabs new board and updates 9x9 grid
@@ -453,6 +454,14 @@ class mainScreen:
         self.cells[x][y].config(image = photo)
         self.cells[x][y].image = photo
 
+    def psmChanger(self,psms):
+        psmSetting = psms
+        print(psmSetting)
+
+    def retrieve_input():
+        input = self.textBox.get("1.0",END)
+        print(input)
+
     # main
     def __init__(self, root):
         # Grab a font from path to use (needs replacement)
@@ -522,7 +531,7 @@ class mainScreen:
         self.dropDown2.set(0)
         psmBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 50, height = buttonHeight)
         psmBD.place(x = 415, y = buttonYOffset + (buttonHeight + buttonPadding) * 5 + buttonGap * 2 + 54)
-        psmBT = OptionMenu(psmBD, self.dropDown2, *self.psms, command = self.reGen)
+        psmBT = OptionMenu(psmBD, self.dropDown2, *self.psms, command = self.psmChanger)
         psmBT.config(bg = "white", font = ("SF Pro Display", 11), relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1, activebackground = "white")
         psmBT.place(x = 0, y = 0)
 
@@ -530,8 +539,8 @@ class mainScreen:
         paddingLabel.place(x = 381, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
         paddingBD = Frame(app, bd = 0, highlightbackground = "#CCCCCC", highlightthickness = 1, width = 50, height = buttonHeight)
         paddingBD.place(x = 440, y = buttonYOffset + (buttonHeight + buttonPadding) * 6 + buttonGap * 2 + 54)
-        textBox = Text(paddingBD, height = 2, width = 50, relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1)
-        textBox.place(x = 0, y = 0)
+        self.textBox = Text(paddingBD, height = 2, width = 50, relief = "solid", borderwidth = 0, highlightbackground = "white", highlightthickness = 1)
+        self.textBox.place(x = 0, y = 0)
 
         # Grab a new table to work with
         self.fetchRandomTable(self.levels[2])
