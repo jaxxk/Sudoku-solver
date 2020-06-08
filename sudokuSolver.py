@@ -333,7 +333,7 @@ class mainScreen:
                 self.checkForCompletions(x, y, False)
                 self.updateImage(x, y)
 
-
+    
     # Event handler for mouseDown; opens github page or replaces selected tuple value
     def mouseDown(self, event):
         x = app.winfo_pointerx() - app.winfo_rootx()
@@ -350,6 +350,10 @@ class mainScreen:
             self.selected = (xth, yth)
         elif (153 < x and x < 198 and 27 < y and y < 43):
             webbrowser.open("https://github.com/jaxxk/Sudoku-solver")
+        else:
+            input = self.textBox.get("1.0",END)
+            paddingSetting = input
+            print("padding setting is ", paddingSetting)
         
 
 
@@ -476,9 +480,7 @@ class mainScreen:
         psmSetting = psms
         print(psmSetting)
 
-    def retrieve_input():
-        input = self.textBox.get("1.0",END)
-        print(input)
+
 
     # main
     def __init__(self, root):
