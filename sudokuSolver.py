@@ -45,16 +45,16 @@ class mainScreen:
     emptyBD, emptyBT, solutionBD, solutionBT = (None for i in range(4))
 
 
-    # Completion animations
-    def animate(self):
-        print("")
-
-
     # tries to solve a given puzzle within n seconds
     def attemptToFindSolution(self):
         self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
+        foundSolution = true
         counter = 0
-        replace_empty(self.board, counter)
+        for x in range(9):
+            for y in range(9):
+                if self.board[x][y] == 0:
+                    return false
+        return true
 
 
     # Creates a new board using image capture
@@ -257,7 +257,8 @@ class mainScreen:
             self.emptyBT.config(text = " Save and check board ")
         else:
             #messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
-            self.attemptToFindSolution()
+            if not self.attemptToFindSolution():
+                return
 
             self.solved = copy.deepcopy(self.board)
 
@@ -436,7 +437,7 @@ class mainScreen:
     def showSolution(self):
         if not self.solved:
             counter = 0
-            replace_empty(self.board, counter)
+            replace_empty(self.board)
             self.solved = copy.deepcopy(self.board)
 
         if (self.solutionBT.cget('text') == " Show solution "):

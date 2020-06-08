@@ -1,3 +1,5 @@
+loop_check = 0
+
 def printgrid(megalist):
     for i in range(9):
         if i % 3 == 0 and i != 0:
@@ -27,7 +29,14 @@ def find_empty(megalist):
 # set it a possible value
 
 
-def replace_empty(megalist, loop_check):
+def replace_empty(megalist):
+    global loop_check
+    loop_check = 0
+    seekSolution(megalist)
+
+
+def seekSolution(megalist):
+    global loop_check
     loop_check += 1
     loc = find_empty(megalist)
     x, y = loc
@@ -36,7 +45,7 @@ def replace_empty(megalist, loop_check):
     for i in range(1, 10):
         if validate(megalist, i, x, y):
             megalist[x][y] = i
-            if replace_empty(megalist, loop_check):
+            if seekSolution(megalist):
                 return True
             megalist[x][y] = 0
     return False
