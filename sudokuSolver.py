@@ -102,8 +102,8 @@ class mainScreen:
                 if not num:
                     num = 0
                 self.board[x].append(num)
-                self.completed[i].append(0)
-                self.conflicted[i].append(0)
+                self.completed[x].append(0)
+                self.conflicted[x].append(0)
 
         loadingLabel.destroy()
 
