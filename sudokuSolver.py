@@ -45,15 +45,18 @@ class mainScreen:
     emptyBD, emptyBT, solutionBD, solutionBT = (None for i in range(4))
 
 
-    # Completion animations
-    def animate(self):
-        print("")
-
-
     # tries to solve a given puzzle within n seconds
     def attemptToFindSolution(self):
-        self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
+        self.board = copy.deepcopy(self.altered)
         replace_empty(self.board)
+        counter = 0
+        for x in range(9):
+            for y in range(9):
+                if self.board[x][y] == 0:
+                    return False
+
+        self.original = copy.deepcopy(self.altered)
+        return True
 
 
     # Creates a new board using image capture
@@ -112,8 +115,9 @@ class mainScreen:
             self.solutionBT.config(text = " Show solution ")
 
 
-    def checkForCompletions(self, x, y):
+    def checkForCompletions(self, x, y, noSound):
         row, col, grid = (True for i in range(3))
+        comp = True
 
         for i in range(9):
             if self.altered[x][i] == 0 or self.conflicted[x][i] == 1:
@@ -135,13 +139,15 @@ class mainScreen:
                         if int(self.altered[x][r]) == i:
                             self.completed[x][r] = 1
                             self.updateImage(x, r)
-                            playsound(self.selectSound(i, "dul"), block = False)
+                            if not noSound:
+                                playsound(self.selectSound(i, "dul"), block = False)
                 if col:
                     for c in range(9):
                         if int(self.altered[c][y]) == i:
                             self.completed[c][y] = 1
                             self.updateImage(c, y)
-                            playsound(self.selectSound(i, "glo"), block = False)
+                            if not noSound:
+                                playsound(self.selectSound(i, "glo"), block = False)
                 if grid:
                     modX = x // 3
                     modY = y // 3
@@ -150,7 +156,17 @@ class mainScreen:
                             if int(self.altered[w][v]) == i:
                                 self.completed[w][v] = 1
                                 self.updateImage(w, v)
-                                playsound(self.selectSound(i, "cel"), block = False)
+                                if not noSound:
+                                    playsound(self.selectSound(i, "cel"), block = False)
+                if i >= 9:
+                    for a in range(9):
+                        for b in range(9):
+                            if self.completed[a][b] == 0:
+                                comp = False
+                                break
+                    if comp:
+                        if not noSound:
+                            playsound("assets/audio/complete.wav", block = False)
                 app.update_idletasks()
                 time.sleep(0.06)
 
@@ -246,8 +262,9 @@ class mainScreen:
             self.emptyBD.config(width = 157)
             self.emptyBT.config(text = " Save and check board ")
         else:
-            #messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
-            self.attemptToFindSolution()
+            if not self.attemptToFindSolution():
+                messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
+                return
 
             self.solved = copy.deepcopy(self.board)
 
@@ -313,7 +330,7 @@ class mainScreen:
                 playsound(self.selectSound(note, "con"), block = False)
             else:
                 playsound(self.selectSound(note, "cel"), block = False)
-                self.checkForCompletions(x, y)
+                self.checkForCompletions(x, y, False)
                 self.updateImage(x, y)
 
 
@@ -426,6 +443,7 @@ class mainScreen:
     # Updates the current board with solution or hides it
     def showSolution(self):
         if not self.solved:
+            counter = 0
             replace_empty(self.board)
             self.solved = copy.deepcopy(self.board)
 
