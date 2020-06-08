@@ -71,6 +71,8 @@ class mainScreen:
         messagebox.showinfo("Information", "Please capture the 9x9 Sudoku Grid from edge to edge.")
 
         self.board.clear()
+        self.completed.clear()
+        self.conflicted.clear()
         self.solved.clear()
 
         cap = QtWidgets.QApplication(sys.argv)
@@ -82,9 +84,11 @@ class mainScreen:
         img = window.getImg()
         dimOfGrid = (img.width + img.height) // 2 # assume this as the size of 9x9 grid for now
         padding = dimOfGrid // 100 + paddingSetting # number of pixels to ignore from edges
-
+        
         for x in range(9):
             self.board.append([])
+            self.completed.append([])
+            self.conflicted.append([])
             for y in range(9):
                 # calculate boundaries for each of the 81 squares
                 tleft = int(img.width * x / 9) + padding
@@ -98,6 +102,8 @@ class mainScreen:
                 if not num:
                     num = 0
                 self.board[x].append(num)
+                self.completed[i].append(0)
+                self.conflicted[i].append(0)
 
         loadingLabel.destroy()
 
@@ -239,12 +245,18 @@ class mainScreen:
             messagebox.showinfo("Information", "After manually inputting the numbers, press the same button again to check it is a valid Sudoku board.")
             
             self.board.clear()
+            self.completed.clear()
+            self.conflicted.clear()
             self.solved.clear()
 
             for i in range(9):
                 self.board.append([])
+                self.completed.append([])
+                self.conflicted.append([])
                 for j in range(9):
                     self.board[i].append(0)
+                    self.completed[i].append(0)
+                    self.conflicted[i].append(0)
             
             for x in range(9):
                     for y in range(9):
@@ -276,6 +288,8 @@ class mainScreen:
     def fetchRandomTable(self, level):
         tempBoard = []
         self.board.clear()
+        self.completed.clear()
+        self.conflicted.clear()
         self.solved.clear()
         link = "http://sudoku9x9.com/?level=" + str(self.levels.index(level))
         page = requests.get(link)
@@ -297,8 +311,12 @@ class mainScreen:
         innerloopcount = 0
         for i in range(9):
             self.board.append([])
+            self.completed.append([])
+            self.conflicted.append([])
             for j in range(9):
                 self.board[i].append(int(tempBoard[innerloopcount]))
+                self.completed[i].append(0)
+                self.conflicted[i].append(0)
                 innerloopcount += 1
 
         self.altered, self.original = (copy.deepcopy(self.board) for i in range(2))
@@ -333,7 +351,7 @@ class mainScreen:
                 self.checkForCompletions(x, y, False)
                 self.updateImage(x, y)
 
-    
+
     # Event handler for mouseDown; opens github page or replaces selected tuple value
     def mouseDown(self, event):
         x = app.winfo_pointerx() - app.winfo_rootx()
@@ -353,7 +371,6 @@ class mainScreen:
         else:
             input = self.textBox.get("1.0",END)
             paddingSetting = input
-            print("padding setting is ", paddingSetting)
         
 
 
@@ -470,17 +487,16 @@ class mainScreen:
                 self.cells[x][y].config(image = photo)
                 self.cells[x][y].image = photo
 
+
     def updateImage(self, x, y):
         newImage = self.selectImage(x, y, self.altered[x][y])
         photo = ImageTk.PhotoImage(newImage)
         self.cells[x][y].config(image = photo)
         self.cells[x][y].image = photo
 
+
     def psmChanger(self,psms):
         psmSetting = psms
-        print(psmSetting)
-
-
 
     # main
     def __init__(self, root):
