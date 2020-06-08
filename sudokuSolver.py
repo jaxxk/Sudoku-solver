@@ -53,7 +53,8 @@ class mainScreen:
     # tries to solve a given puzzle within n seconds
     def attemptToFindSolution(self):
         self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
-        replace_empty(self.board)
+        counter = 0
+        replace_empty(self.board, counter)
 
 
     # Creates a new board using image capture
@@ -434,7 +435,8 @@ class mainScreen:
     # Updates the current board with solution or hides it
     def showSolution(self):
         if not self.solved:
-            replace_empty(self.board)
+            counter = 0
+            replace_empty(self.board, counter)
             self.solved = copy.deepcopy(self.board)
 
         if (self.solutionBT.cget('text') == " Show solution "):
