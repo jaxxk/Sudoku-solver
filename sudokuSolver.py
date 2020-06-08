@@ -47,14 +47,16 @@ class mainScreen:
 
     # tries to solve a given puzzle within n seconds
     def attemptToFindSolution(self):
-        self.board, self.original = (copy.deepcopy(self.altered) for i in range(2))
-        foundSolution = true
+        self.board = copy.deepcopy(self.altered)
+        replace_empty(self.board)
         counter = 0
         for x in range(9):
             for y in range(9):
                 if self.board[x][y] == 0:
-                    return false
-        return true
+                    return False
+
+        self.original = copy.deepcopy(self.altered)
+        return True
 
 
     # Creates a new board using image capture
@@ -256,8 +258,8 @@ class mainScreen:
             self.emptyBD.config(width = 157)
             self.emptyBT.config(text = " Save and check board ")
         else:
-            #messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
             if not self.attemptToFindSolution():
+                messagebox.showinfo("Information", "There is no possible solution for this board.\nPlease try again.")
                 return
 
             self.solved = copy.deepcopy(self.board)
