@@ -114,6 +114,7 @@ class mainScreen:
 
     def checkForCompletions(self, x, y):
         row, col, grid = (True for i in range(3))
+        comp = True
 
         for i in range(9):
             if self.altered[x][i] == 0 or self.conflicted[x][i] == 1:
@@ -151,6 +152,14 @@ class mainScreen:
                                 self.completed[w][v] = 1
                                 self.updateImage(w, v)
                                 playsound(self.selectSound(i, "cel"), block = False)
+                if i >= 9:
+                    for a in range(9):
+                        for b in range(9):
+                            if self.completed[a][b] == 0:
+                                comp = False
+                                break
+                    if comp:
+                        playsound("assets/audio/complete.wav", block = False)
                 app.update_idletasks()
                 time.sleep(0.06)
 
